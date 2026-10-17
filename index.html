@@ -2,6 +2,9 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Роутер g20</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -36,6 +39,7 @@ h2{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;
 <body>
 <div id="app"></div>
 <script>
+const PANEL_VER = "v3 · 17.10 13:10";
 const tg = window.Telegram && Telegram.WebApp; if (tg) { tg.ready(); tg.expand(); }
 const NODES = {auto:["🇪🇺","Автовыбор провайдера"],pl:["🇵🇱","Польша"],gb:["🇬🇧","Англия"],nl:["🇳🇱","Нидерланды"],ru:["🇷🇺","Санкт-Петербург"],nskru:["🇷🇺","Новосибирск"],fr:["🇫🇷","Франция"],ee:["🇪🇪","Эстония"],se:["🇸🇪","Швеция"],de:["🇩🇪","Германия"],nyus:["🇺🇸","США"],by:["🇧🇾","Беларусь"],kz:["🇰🇿","Казахстан"],am:["🇦🇲","Армения"],mx:["🇲🇽","Мексика"],bg:["🇧🇬","Болгария"],cz:["🇨🇿","Чехия"],sg:["🇸🇬","Сингапур"],"br-rul":["📶","Обход БС #12"],"br-rub":["📶","Обход БС #13"],"rev-ru":["🇷🇺","Из-за рубежа"],"tg-nl":["✈️","Сервер для TG"]};
 const BANDS = {l2:"g20 · 2.4", l5:"g20 · 5", g:"Гости", h:"Умный дом"};
@@ -69,7 +73,7 @@ function render() {
   if (!S) {
     app.innerHTML = `<div class="err"><div style="font-size:44px">🛜</div><p><b>Нет свежих данных о роутере</b></p>
       <p>Нажмите «Обновить данные» — бот пришлёт новую кнопку «Роутер». Если не сработало, закройте окно и нажмите кнопку «Роутер» внизу чата (или отправьте боту /panel).</p></div>
-      <button class="btn" id="refresh">🔄 Обновить данные</button>`;
+      <button class="btn" id="refresh">🔄 Обновить данные</button><div class="foot">${PANEL_VER}</div>`;
     document.getElementById("refresh").onclick = () => { hap();
       try { if (tg && tg.sendData && tg.initData === "") { tg.sendData(JSON.stringify({a:"refresh"})); return; } } catch (e) {}
       try { tg.sendData(JSON.stringify({a:"refresh"})); } catch (e) {
@@ -120,7 +124,7 @@ function render() {
   h += `<h2>Сеть</h2><div class="card">
     <div class="row"><span class="ic">🌐</span><div class="t">Внешний IP<div class="s">WAN ${esc(S.w)}</div></div><span class="s">${esc(S.e)}</span></div></div>`;
   h += `<h2>Действия</h2><button class="btn" id="refresh">🔄 Обновить данные</button><button class="btn red" id="reboot">⏻ Перезагрузить роутер</button>`;
-  h += `<div class="foot">Данные: ${agoTxt} · изменения применяет бот</div>`;
+  h += `<div class="foot">Данные: ${agoTxt} · изменения применяет бот · ${PANEL_VER}</div>`;
   app.innerHTML = h;
   document.getElementById("vpn").onchange = e => { hap(); e.target.checked ? send({a:"vpn",v:1}) : confirmDo("Выключить VPN? Заблокированные сайты перестанут открываться.", {a:"vpn",v:0}) || (e.target.checked = true); };
   document.getElementById("guest").onchange = e => { hap(); send({a:"guest",v:e.target.checked?1:0}); };

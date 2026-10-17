@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Роутер g20</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--bg:var(--tg-theme-secondary-bg-color,#f2f2f7);--card:var(--tg-theme-section-bg-color,var(--tg-theme-bg-color,#fff));--tx:var(--tg-theme-text-color,#000);--hint:var(--tg-theme-hint-color,#8e8e93);--acc:var(--tg-theme-button-color,#2481cc);--acctx:var(--tg-theme-button-text-color,#fff);--hdr:var(--tg-theme-section-header-text-color,var(--hint));--red:var(--tg-theme-destructive-text-color,#e53935);--sep:rgba(127,127,127,.18)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:12px 12px 28px}
+h2{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--hdr);margin:18px 6px 6px}
+.card{background:var(--card);border-radius:14px;overflow:hidden}
+.row{display:flex;align-items:center;gap:10px;padding:12px 14px;min-height:48px}
+.row+.row{border-top:1px solid var(--sep)}
+.row .t{flex:1;min-width:0}.row .s{color:var(--hint);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ic{font-size:20px;width:26px;text-align:center}
+.hero{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{background:var(--card);border-radius:14px;padding:12px}
+.tile .k{color:var(--hint);font-size:12px}.tile .v{font-size:17px;font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sw{position:relative;width:51px;height:31px;flex:none}
+.sw input{display:none}.sw span{position:absolute;inset:0;border-radius:31px;background:var(--sep);transition:.2s}
+.sw span:before{content:"";position:absolute;width:27px;height:27px;left:2px;top:2px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:.2s}
+.sw input:checked+span{background:#34c759}.sw input:checked+span:before{transform:translateX(20px)}
+.srv{cursor:pointer}.srv.on{background:color-mix(in srgb,var(--acc) 12%,transparent)}
+.srv .chk{color:var(--acc);font-weight:700;width:18px}
+.ping{font-size:13px;color:var(--hint);font-variant-numeric:tabular-nums}.ping.ok{color:#34c759}.ping.mid{color:#ff9500}.ping.bad{color:var(--red)}
+.srv.dead .t{opacity:.45}
+.btn{display:block;width:100%;border:0;border-radius:12px;padding:13px;font:600 15px inherit;font-family:inherit;background:var(--card);color:var(--acc);cursor:pointer}
+.btn.red{color:var(--red)}.btn+.btn{margin-top:8px}
+.foot{color:var(--hint);font-size:12px;text-align:center;margin-top:14px}
+.badge{display:inline-block;font-size:11px;padding:2px 7px;border-radius:8px;background:var(--sep);color:var(--hint);margin-left:6px;vertical-align:middle}
+.err{padding:30px 16px;text-align:center;color:var(--hint)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const PANEL_VER = "v3 · 17.10 13:10";
+const tg = window.Telegram && Telegram.WebApp; if (tg) { tg.ready(); tg.expand(); }
+const NODES = {auto:["🇪🇺","Автовыбор провайдера"],pl:["🇵🇱","Польша"],gb:["🇬🇧","Англия"],nl:["🇳🇱","Нидерланды"],ru:["🇷🇺","Санкт-Петербург"],nskru:["🇷🇺","Новосибирск"],fr:["🇫🇷","Франция"],ee:["🇪🇪","Эстония"],se:["🇸🇪","Швеция"],de:["🇩🇪","Германия"],nyus:["🇺🇸","США"],by:["🇧🇾","Беларусь"],kz:["🇰🇿","Казахстан"],am:["🇦🇲","Армения"],mx:["🇲🇽","Мексика"],bg:["🇧🇬","Болгария"],cz:["🇨🇿","Чехия"],sg:["🇸🇬","Сингапур"],"br-rul":["📶","Обход БС #12"],"br-rub":["📶","Обход БС #13"],"rev-ru":["🇷🇺","Из-за рубежа"],"tg-nl":["✈️","Сервер для TG"]};
+const BANDS = {l2:"g20 · 2.4", l5:"g20 · 5", g:"Гости", h:"Умный дом"};
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function b64json(h) {
+  try { h = decodeURIComponent(h).replace(/-/g,"+").replace(/_/g,"/").replace(/\s/g,""); while (h.length % 4) h += "=";
+    const bin = atob(h), bytes = Uint8Array.from(bin, c => c.charCodeAt(0)); const o = JSON.parse(new TextDecoder().decode(bytes));
+    return (o && typeof o === "object" && "ts" in o) ? o : null; } catch (e) { return null; }
+}
+function decode() {
+  const cands = [];
+  try { const q = new URLSearchParams(location.search); if (q.get("s")) cands.push(q.get("s")); } catch (e) {}
+  try { const h = location.hash.slice(1);
+    if (h) { const hp = new URLSearchParams(h); if (hp.get("s")) cands.push(hp.get("s")); else if (!/^tgWebApp/.test(h)) cands.push(h); } } catch (e) {}
+  try { const sp = tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param; if (sp) cands.push(sp); } catch (e) {}
+  for (const c of cands) { const o = b64json(c); if (o) return o; }
+  return null;
+}
+const S = decode();
+const hap = (t="light") => { try { tg.HapticFeedback.impactOccurred(t); } catch(e){} };
+const okHap = () => { try { tg.HapticFeedback.notificationOccurred("success"); } catch(e){} };
+function send(obj) {
+  if (!tg || !tg.sendData) { alert(JSON.stringify(obj)); return; }
+  okHap(); tg.sendData(JSON.stringify(obj));  // closes the Mini App; bot replies in chat
+}
+function confirmDo(text, obj) { hap("medium"); if (tg && tg.showConfirm) tg.showConfirm(text, ok => ok && send(obj)); else if (confirm(text)) send(obj); }
+const nodeLabel = cc => NODES[cc] || ["🌐", cc || "?"];
+function pingCls(p){ return p<=0 ? "bad" : p<220 ? "ok" : p<400 ? "mid" : "bad"; }
+function render() {
+  const app = document.getElementById("app");
+  if (!S) {
+    app.innerHTML = `<div class="err"><div style="font-size:44px">🛜</div><p><b>Нет свежих данных о роутере</b></p>
+      <p>Нажмите «Обновить данные» — бот пришлёт новую кнопку «Роутер». Если не сработало, закройте окно и нажмите кнопку «Роутер» внизу чата (или отправьте боту /panel).</p></div>
+      <button class="btn" id="refresh">🔄 Обновить данные</button><div class="foot">${PANEL_VER}</div>`;
+    document.getElementById("refresh").onclick = () => { hap();
+      try { if (tg && tg.sendData && tg.initData === "") { tg.sendData(JSON.stringify({a:"refresh"})); return; } } catch (e) {}
+      try { tg.sendData(JSON.stringify({a:"refresh"})); } catch (e) {
+        if (tg && tg.showAlert) tg.showAlert("Закройте окно и нажмите кнопку «Роутер» под полем ввода или отправьте /panel."); } };
+    return;
+  }
+  const ago = Math.max(0, Math.round(Date.now()/1000 - S.ts));
+  const agoTxt = ago < 60 ? "только что" : ago < 3600 ? Math.round(ago/60)+" мин назад" : Math.round(ago/3600)+" ч назад";
+  const byTag = Object.fromEntries((S.n||[]).map(n => [n[0], n]));
+  const autoCC = byTag[S.auto] ? byTag[S.auto][1] : null;
+  let cur;
+  if (!S.vpn) cur = "Выключен";
+  else if (S.sel === "AUTO") cur = "Авто → " + nodeLabel(autoCC).join(" ");
+  else cur = nodeLabel(byTag[S.sel] ? byTag[S.sel][1] : null).join(" ");
+  let h = '';
+  h += `<div class="hero">
+    <div class="tile"><div class="k">VPN</div><div class="v">${S.vpn ? "🛡️ " + esc(cur) : "⛔ Выключен"}</div></div>
+    <div class="tile"><div class="k">Устройств в Wi‑Fi</div><div class="v">📱 ${(S.c||[]).length}</div></div>
+    <div class="tile"><div class="k">Работает</div><div class="v">⏱ ${esc(S.up)}</div></div>
+    <div class="tile"><div class="k">Память · нагрузка</div><div class="v">${esc(S.m)} · ${esc(S.ld)}</div></div>
+  </div>`;
+  h += `<h2>Управление</h2><div class="card">
+    <label class="row"><span class="ic">🛡️</span><div class="t">VPN (Podkop)<div class="s">Заблокированные сайты через VPN, остальное напрямую</div></div>
+      <span class="sw"><input type="checkbox" id="vpn" ${S.vpn?"checked":""}><span></span></span></label>
+    <label class="row"><span class="ic">👥</span><div class="t">Гостевой Wi‑Fi<div class="s">g20-guest</div></div>
+      <span class="sw"><input type="checkbox" id="guest" ${S.g?"checked":""}><span></span></span></label>
+    <div class="row"><span class="ic">🚫</span><div class="t">Блокировка рекламы<div class="s">AdGuard Home</div></div><span class="s">${S.a?"работает":"выключена"}</span></div>
+  </div>`;
+  if (S.vpn && S.n && S.n.length) {
+    h += `<h2>Сервер VPN</h2><div class="card">`;
+    const ap = byTag[S.auto] ? byTag[S.auto][2] : 0;
+    h += `<div class="row srv ${S.sel==="AUTO"?"on":""}" data-t="AUTO"><span class="chk">${S.sel==="AUTO"?"✓":""}</span><span class="ic">⚡</span>
+      <div class="t">Авто (лучший)<div class="s">сейчас: ${esc(nodeLabel(autoCC).join(" "))}</div></div><span class="ping ${pingCls(ap)}">${ap>0?ap+" мс":""}</span></div>`;
+    for (const [tag, cc, p] of S.n) {
+      const [fl, nm] = nodeLabel(cc), on = S.sel === tag;
+      h += `<div class="row srv ${on?"on":""} ${p>0?"":"dead"}" data-t="${esc(tag)}"><span class="chk">${on?"✓":""}</span><span class="ic">${fl}</span>
+        <div class="t">${esc(nm)}</div><span class="ping ${pingCls(p)}">${p>0?p+" мс":"нет связи"}</span></div>`;
+    }
+    h += `</div>`;
+  }
+  h += `<h2>Устройства<span class="badge">${(S.c||[]).length}</span></h2><div class="card">`;
+  if (!(S.c||[]).length) h += `<div class="row"><div class="t s">Нет подключённых устройств</div></div>`;
+  for (const [nm, ip, b, sig] of (S.c||[])) {
+    const ic = b==="g" ? "👥" : b==="h" ? "🏠" : "📱";
+    h += `<div class="row"><span class="ic">${ic}</span><div class="t">${esc(nm||"Без имени")}<div class="s">${esc(ip||"—")} · ${esc(BANDS[b]||b)}</div></div><span class="ping">${sig?esc(sig)+" dBm":""}</span></div>`;
+  }
+  h += `</div>`;
+  h += `<h2>Сеть</h2><div class="card">
+    <div class="row"><span class="ic">🌐</span><div class="t">Внешний IP<div class="s">WAN ${esc(S.w)}</div></div><span class="s">${esc(S.e)}</span></div></div>`;
+  h += `<h2>Действия</h2><button class="btn" id="refresh">🔄 Обновить данные</button><button class="btn red" id="reboot">⏻ Перезагрузить роутер</button>`;
+  h += `<div class="foot">Данные: ${agoTxt} · изменения применяет бот · ${PANEL_VER}</div>`;
+  app.innerHTML = h;
+  document.getElementById("vpn").onchange = e => { hap(); e.target.checked ? send({a:"vpn",v:1}) : confirmDo("Выключить VPN? Заблокированные сайты перестанут открываться.", {a:"vpn",v:0}) || (e.target.checked = true); };
+  document.getElementById("guest").onchange = e => { hap(); send({a:"guest",v:e.target.checked?1:0}); };
+  document.getElementById("refresh").onclick = () => { hap(); send({a:"refresh"}); };
+  document.getElementById("reboot").onclick = () => confirmDo("Перезагрузить роутер? Интернет пропадёт примерно на 2 минуты.", {a:"reboot"});
+  document.querySelectorAll(".srv").forEach(el => el.onclick = () => { hap(); const t = el.dataset.t;
+    if ((t==="AUTO" && S.sel==="AUTO") || t===S.sel) return; send({a:"sel", t}); });
+}
+render();
+</script>
+</body>
+</html>
