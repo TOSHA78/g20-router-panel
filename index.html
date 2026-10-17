@@ -40,9 +40,19 @@ const tg = window.Telegram && Telegram.WebApp; if (tg) { tg.ready(); tg.expand()
 const NODES = {auto:["🇪🇺","Автовыбор провайдера"],pl:["🇵🇱","Польша"],gb:["🇬🇧","Англия"],nl:["🇳🇱","Нидерланды"],ru:["🇷🇺","Санкт-Петербург"],nskru:["🇷🇺","Новосибирск"],fr:["🇫🇷","Франция"],ee:["🇪🇪","Эстония"],se:["🇸🇪","Швеция"],de:["🇩🇪","Германия"],nyus:["🇺🇸","США"],by:["🇧🇾","Беларусь"],kz:["🇰🇿","Казахстан"],am:["🇦🇲","Армения"],mx:["🇲🇽","Мексика"],bg:["🇧🇬","Болгария"],cz:["🇨🇿","Чехия"],sg:["🇸🇬","Сингапур"],"br-rul":["📶","Обход БС #12"],"br-rub":["📶","Обход БС #13"],"rev-ru":["🇷🇺","Из-за рубежа"],"tg-nl":["✈️","Сервер для TG"]};
 const BANDS = {l2:"g20 · 2.4", l5:"g20 · 5", g:"Гости", h:"Умный дом"};
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function b64json(h) {
+  try { h = decodeURIComponent(h).replace(/-/g,"+").replace(/_/g,"/").replace(/\s/g,""); while (h.length % 4) h += "=";
+    const bin = atob(h), bytes = Uint8Array.from(bin, c => c.charCodeAt(0)); const o = JSON.parse(new TextDecoder().decode(bytes));
+    return (o && typeof o === "object" && "ts" in o) ? o : null; } catch (e) { return null; }
+}
 function decode() {
-  try { let h = location.hash.slice(1); if (!h) return null; h = h.replace(/-/g,"+").replace(/_/g,"/"); while (h.length % 4) h += "=";
-    const bin = atob(h), bytes = Uint8Array.from(bin, c => c.charCodeAt(0)); return JSON.parse(new TextDecoder().decode(bytes)); } catch (e) { return null; }
+  const cands = [];
+  try { const q = new URLSearchParams(location.search); if (q.get("s")) cands.push(q.get("s")); } catch (e) {}
+  try { const h = location.hash.slice(1);
+    if (h) { const hp = new URLSearchParams(h); if (hp.get("s")) cands.push(hp.get("s")); else if (!/^tgWebApp/.test(h)) cands.push(h); } } catch (e) {}
+  try { const sp = tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param; if (sp) cands.push(sp); } catch (e) {}
+  for (const c of cands) { const o = b64json(c); if (o) return o; }
+  return null;
 }
 const S = decode();
 const hap = (t="light") => { try { tg.HapticFeedback.impactOccurred(t); } catch(e){} };
@@ -56,7 +66,16 @@ const nodeLabel = cc => NODES[cc] || ["🌐", cc || "?"];
 function pingCls(p){ return p<=0 ? "bad" : p<220 ? "ok" : p<400 ? "mid" : "bad"; }
 function render() {
   const app = document.getElementById("app");
-  if (!S) { app.innerHTML = '<div class="err">Нет данных о роутере.<br>Откройте панель кнопкой «Роутер» в чате с ботом.</div>'; return; }
+  if (!S) {
+    app.innerHTML = `<div class="err"><div style="font-size:44px">🛜</div><p><b>Нет свежих данных о роутере</b></p>
+      <p>Нажмите «Обновить данные» — бот пришлёт новую кнопку «Роутер». Если не сработало, закройте окно и нажмите кнопку «Роутер» внизу чата (или отправьте боту /panel).</p></div>
+      <button class="btn" id="refresh">🔄 Обновить данные</button>`;
+    document.getElementById("refresh").onclick = () => { hap();
+      try { if (tg && tg.sendData && tg.initData === "") { tg.sendData(JSON.stringify({a:"refresh"})); return; } } catch (e) {}
+      try { tg.sendData(JSON.stringify({a:"refresh"})); } catch (e) {
+        if (tg && tg.showAlert) tg.showAlert("Закройте окно и нажмите кнопку «Роутер» под полем ввода или отправьте /panel."); } };
+    return;
+  }
   const ago = Math.max(0, Math.round(Date.now()/1000 - S.ts));
   const agoTxt = ago < 60 ? "только что" : ago < 3600 ? Math.round(ago/60)+" мин назад" : Math.round(ago/3600)+" ч назад";
   const byTag = Object.fromEntries((S.n||[]).map(n => [n[0], n]));
