@@ -2,258 +2,1272 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
+<meta name="referrer" content="no-referrer">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f2f2f7">
+<link rel="icon" href="data:,">
 <title>Роутер g20</title>
-<script src="tg.js?v=5"></script>
 <style>
-:root{--bg:var(--tg-theme-secondary-bg-color,#f2f2f7);--card:var(--tg-theme-section-bg-color,var(--tg-theme-bg-color,#fff));--tx:var(--tg-theme-text-color,#000);--hint:var(--tg-theme-hint-color,#8e8e93);--acc:var(--tg-theme-button-color,#2481cc);--acctx:var(--tg-theme-button-text-color,#fff);--hdr:var(--tg-theme-section-header-text-color,var(--hint));--red:var(--tg-theme-destructive-text-color,#e53935);--sep:rgba(127,127,127,.18)}
+:root{--bg:var(--tg-theme-secondary-bg-color,#f2f2f7);--card:var(--tg-theme-section-bg-color,var(--tg-theme-bg-color,#fff));--tx:var(--tg-theme-text-color,#000);--hint:var(--tg-theme-hint-color,#8e8e93);--acc:var(--tg-theme-button-color,#2481cc);--acctx:var(--tg-theme-button-text-color,#fff);--hdr:var(--tg-theme-section-header-text-color,var(--hint));--red:var(--tg-theme-destructive-text-color,#e53935);--sep:rgba(127,127,127,.18);--acc-soft:rgba(36,129,204,.12);--safe-t:calc(var(--tg-content-safe-area-inset-top,0px) + var(--tg-safe-area-inset-top,0px));--safe-r:calc(var(--tg-content-safe-area-inset-right,0px) + var(--tg-safe-area-inset-right,0px));--safe-b:calc(var(--tg-content-safe-area-inset-bottom,0px) + var(--tg-safe-area-inset-bottom,0px));--safe-l:calc(var(--tg-content-safe-area-inset-left,0px) + var(--tg-safe-area-inset-left,0px))}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:12px 12px 28px}
+html{touch-action:manipulation;background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:calc(12px + var(--safe-t)) calc(12px + var(--safe-r)) calc(28px + var(--safe-b)) calc(12px + var(--safe-l));min-height:var(--tg-viewport-stable-height,100vh);-webkit-font-smoothing:antialiased;overscroll-behavior:none}
 h2{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--hdr);margin:18px 6px 6px}
 .card{background:var(--card);border-radius:14px;overflow:hidden}
 .row{display:flex;align-items:center;gap:10px;padding:12px 14px;min-height:48px}
 .row+.row{border-top:1px solid var(--sep)}
-.row .t{flex:1;min-width:0}.row .s{color:var(--hint);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ic{font-size:20px;width:26px;text-align:center}
+.row .t{flex:1;min-width:0}.row .s{color:var(--hint);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.t .s.wrap{white-space:normal}
+.ed .s{flex:1 1 100%;color:var(--hint);font-size:13px}
+.ic{font-size:20px;width:26px;text-align:center;flex:none}
 .hero{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .tile{background:var(--card);border-radius:14px;padding:12px}
 .tile .k{color:var(--hint);font-size:12px}.tile .v{font-size:17px;font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sw{position:relative;width:51px;height:31px;flex:none}
-.sw input{display:none}.sw span{position:absolute;inset:0;border-radius:31px;background:var(--sep);transition:.2s}
+.sw input{position:absolute;top:0;right:0;bottom:0;left:0;margin:0;opacity:0;cursor:pointer}
+.sw span{position:absolute;top:0;right:0;bottom:0;left:0;border-radius:31px;background:var(--sep);transition:.2s}
 .sw span:before{content:"";position:absolute;width:27px;height:27px;left:2px;top:2px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:.2s}
 .sw input:checked+span{background:#34c759}.sw input:checked+span:before{transform:translateX(20px)}
-.srv{cursor:pointer}.srv.on{background:color-mix(in srgb,var(--acc) 12%,transparent)}
-.srv .chk{color:var(--acc);font-weight:700;width:18px}
-.ping{font-size:13px;color:var(--hint);font-variant-numeric:tabular-nums}.ping.ok{color:#34c759}.ping.mid{color:#ff9500}.ping.bad{color:var(--red)}
+.sw input:focus-visible+span,.row:focus-visible,.btn:focus-visible,.ed button:focus-visible,.ed input:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
+.srv{cursor:pointer}.srv.on{background:var(--acc-soft)}
+.srv .chk{display:inline-block;color:var(--acc);font-weight:700;width:18px;text-align:center;flex:none}
+.ping{font-size:13px;color:var(--hint);font-variant-numeric:tabular-nums;flex:none}.ping.ok{color:#34c759}.ping.mid{color:#ff9500}.ping.bad{color:var(--red)}
 .srv.dead .t{opacity:.45}
-.btn{display:block;width:100%;border:0;border-radius:12px;padding:13px;font:600 15px inherit;font-family:inherit;background:var(--card);color:var(--acc);cursor:pointer}
+.btn{display:block;width:100%;border:0;border-radius:12px;padding:13px;min-height:48px;font:600 15px/1.2 inherit;background:var(--card);color:var(--acc);cursor:pointer}
 .btn.red{color:var(--red)}.btn+.btn{margin-top:8px}
+.btn:disabled{opacity:.55;cursor:default}
 .foot{color:var(--hint);font-size:12px;text-align:center;margin-top:14px}
 .badge{display:inline-block;font-size:11px;padding:2px 7px;border-radius:8px;background:var(--sep);color:var(--hint);margin-left:6px;vertical-align:middle}
 .dev{cursor:pointer}.dev.off .t{opacity:.5}.dev .bl{color:var(--red);font-size:12px;font-weight:600}
+.dev.static{cursor:default}
 .ed{display:none;padding:0 14px 12px 50px;gap:8px;flex-wrap:wrap}.ed.open{display:flex}
-.ed input{flex:1 1 100%;font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--sep);border-radius:10px;padding:10px}
-.ed button{flex:1;border:0;border-radius:10px;padding:10px;font:600 14px inherit;font-family:inherit;background:var(--acc);color:var(--acctx)}
+.ed input{flex:1 1 100%;font:inherit;font-size:16px;color:var(--tx);background:var(--bg);border:1px solid var(--sep);border-radius:10px;padding:10px;min-height:44px}
+.ed button{flex:1;border:0;border-radius:10px;padding:10px;min-height:44px;font:600 14px/1.2 inherit;background:var(--acc);color:var(--acctx);cursor:pointer}
 .ed button.red{background:var(--red);color:#fff}.ed button.grn{background:#34c759;color:#fff}
 .err{padding:30px 16px;text-align:center;color:var(--hint)}
+.err .icon{font-size:44px;line-height:1.2}
+.note{margin:0 0 10px;padding:10px 12px;border-radius:12px;background:var(--card);color:var(--tx);font-size:13px;line-height:1.35}
+.note.warn{box-shadow:inset 3px 0 0 #ff9500}
+.toast{position:fixed;z-index:5;left:calc(12px + var(--safe-l));right:calc(12px + var(--safe-r));bottom:calc(12px + var(--safe-b));padding:12px 14px;border-radius:14px;background:var(--tx);color:var(--bg);font-size:14px;line-height:1.35;box-shadow:0 8px 24px rgba(0,0,0,.18);opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .2s,transform .2s}
+.toast.show{opacity:1;transform:none}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+#app[aria-busy="true"]{pointer-events:none}
+@media (prefers-reduced-motion:reduce){
+  .sw span,.sw span:before,.toast{transition:none}
+}
 </style>
 </head>
 <body>
-<div id="app"><div class="err">Загрузка панели… (v5)</div></div>
-<script>function showFatal(msg) {
-  try {
-    var a = document.getElementById("app");
-    a.innerHTML = '<div class="err"><div style="font-size:40px">\u26A0\uFE0F</div><p><b>\u041E\u0448\u0438\u0431\u043A\u0430 \u043F\u0430\u043D\u0435\u043B\u0438</b></p><p style="font-size:12px;word-break:break-word">' + String(msg).replace(/[<>&]/g, "") + "</p><p>\u041E\u0442\u043F\u0440\u0430\u0432\u044C\u0442\u0435 \u0431\u043E\u0442\u0443 /panel</p></div>";
-  } catch (e) {
+<div id="app" data-booted="0"><div class="err"><div class="icon">🛜</div><p><b>Загрузка панели…</b></p></div></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<noscript><div class="err"><p><b>Нужен JavaScript.</b></p><p>Откройте панель в Telegram.</p></div></noscript>
+<script>
+(function () {
+  window.__g20timer = setTimeout(function () {
+    var app = document.getElementById("app");
+    if (!app || app.getAttribute("data-booted") === "1") return;
+    app.innerHTML = '<div class="err"><div class="icon">⚠️</div><p><b>Страница загружается слишком долго</b></p><p>Проверьте интернет, закройте окно и откройте панель ещё раз.</p></div><button class="btn" type="button" id="reload">Повторить</button>';
+    var b = document.getElementById("reload");
+    if (b) b.onclick = function () { location.reload(); };
+  }, 12000);
+})();
+</script>
+<script src="tg.js?v=6" onerror="window.__tgFailed=1"></script>
+<script>
+(() => {
+  // logic.mjs
+  var STALE_SEC = 15 * 60;
+  var SESSION_NOTE_SEC = 12 * 3600;
+  var NODES = {
+    auto: ["\u{1F1EA}\u{1F1FA}", "\u0410\u0432\u0442\u043E\u0432\u044B\u0431\u043E\u0440 \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440\u0430"],
+    pl: ["\u{1F1F5}\u{1F1F1}", "\u041F\u043E\u043B\u044C\u0448\u0430"],
+    gb: ["\u{1F1EC}\u{1F1E7}", "\u0410\u043D\u0433\u043B\u0438\u044F"],
+    nl: ["\u{1F1F3}\u{1F1F1}", "\u041D\u0438\u0434\u0435\u0440\u043B\u0430\u043D\u0434\u044B"],
+    ru: ["\u{1F1F7}\u{1F1FA}", "\u0421\u0430\u043D\u043A\u0442-\u041F\u0435\u0442\u0435\u0440\u0431\u0443\u0440\u0433"],
+    nskru: ["\u{1F1F7}\u{1F1FA}", "\u041D\u043E\u0432\u043E\u0441\u0438\u0431\u0438\u0440\u0441\u043A"],
+    fr: ["\u{1F1EB}\u{1F1F7}", "\u0424\u0440\u0430\u043D\u0446\u0438\u044F"],
+    ee: ["\u{1F1EA}\u{1F1EA}", "\u042D\u0441\u0442\u043E\u043D\u0438\u044F"],
+    se: ["\u{1F1F8}\u{1F1EA}", "\u0428\u0432\u0435\u0446\u0438\u044F"],
+    de: ["\u{1F1E9}\u{1F1EA}", "\u0413\u0435\u0440\u043C\u0430\u043D\u0438\u044F"],
+    nyus: ["\u{1F1FA}\u{1F1F8}", "\u0421\u0428\u0410"],
+    by: ["\u{1F1E7}\u{1F1FE}", "\u0411\u0435\u043B\u0430\u0440\u0443\u0441\u044C"],
+    kz: ["\u{1F1F0}\u{1F1FF}", "\u041A\u0430\u0437\u0430\u0445\u0441\u0442\u0430\u043D"],
+    am: ["\u{1F1E6}\u{1F1F2}", "\u0410\u0440\u043C\u0435\u043D\u0438\u044F"],
+    mx: ["\u{1F1F2}\u{1F1FD}", "\u041C\u0435\u043A\u0441\u0438\u043A\u0430"],
+    bg: ["\u{1F1E7}\u{1F1EC}", "\u0411\u043E\u043B\u0433\u0430\u0440\u0438\u044F"],
+    cz: ["\u{1F1E8}\u{1F1FF}", "\u0427\u0435\u0445\u0438\u044F"],
+    sg: ["\u{1F1F8}\u{1F1EC}", "\u0421\u0438\u043D\u0433\u0430\u043F\u0443\u0440"],
+    "br-rul": ["\u{1F4F6}", "\u041E\u0431\u0445\u043E\u0434 \u0411\u0421 #12"],
+    "br-rub": ["\u{1F4F6}", "\u041E\u0431\u0445\u043E\u0434 \u0411\u0421 #13"],
+    "rev-ru": ["\u{1F1F7}\u{1F1FA}", "\u0418\u0437-\u0437\u0430 \u0440\u0443\u0431\u0435\u0436\u0430"],
+    "tg-nl": ["\u2708\uFE0F", "\u0421\u0435\u0440\u0432\u0435\u0440 \u0434\u043B\u044F TG"]
+  };
+  var BAND_TO_NET = { l2: "m", l5: "m", m: "m", g: "g", h: "h" };
+  var BAND_LABEL = { l2: "2.4 \u0413\u0413\u0446", l5: "5 \u0413\u0413\u0446" };
+  function plural(n, one, few, many) {
+    var abs = Math.abs(n) % 100;
+    var last = abs % 10;
+    if (abs > 10 && abs < 20) return many;
+    if (last > 1 && last < 5) return few;
+    if (last === 1) return one;
+    return many;
   }
-}
-window.onerror = function(m, src, line, col) {
-  showFatal(m + " @" + line + ":" + col);
-  return true;
-};
-function boot() {
-  const PANEL_VER = "v5 \xB7 17.10 13:50";
-  const tg = window.Telegram && Telegram.WebApp;
-  if (tg) {
-    tg.ready();
-    tg.expand();
+  function agoText(ts, nowSec) {
+    var ago = Math.max(0, Math.floor(nowSec - ts));
+    if (ago < 60) return "\u0442\u043E\u043B\u044C\u043A\u043E \u0447\u0442\u043E";
+    if (ago < 3600) {
+      var m = Math.floor(ago / 60);
+      return m + " " + plural(m, "\u043C\u0438\u043D\u0443\u0442\u0443", "\u043C\u0438\u043D\u0443\u0442\u044B", "\u043C\u0438\u043D\u0443\u0442") + " \u043D\u0430\u0437\u0430\u0434";
+    }
+    if (ago < 86400) {
+      var h = Math.floor(ago / 3600);
+      return h + " " + plural(h, "\u0447\u0430\u0441", "\u0447\u0430\u0441\u0430", "\u0447\u0430\u0441\u043E\u0432") + " \u043D\u0430\u0437\u0430\u0434";
+    }
+    var d = Math.floor(ago / 86400);
+    return d + " " + plural(d, "\u0434\u0435\u043D\u044C", "\u0434\u043D\u044F", "\u0434\u043D\u0435\u0439") + " \u043D\u0430\u0437\u0430\u0434";
   }
-  const NODES = { auto: ["\u{1F1EA}\u{1F1FA}", "\u0410\u0432\u0442\u043E\u0432\u044B\u0431\u043E\u0440 \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440\u0430"], pl: ["\u{1F1F5}\u{1F1F1}", "\u041F\u043E\u043B\u044C\u0448\u0430"], gb: ["\u{1F1EC}\u{1F1E7}", "\u0410\u043D\u0433\u043B\u0438\u044F"], nl: ["\u{1F1F3}\u{1F1F1}", "\u041D\u0438\u0434\u0435\u0440\u043B\u0430\u043D\u0434\u044B"], ru: ["\u{1F1F7}\u{1F1FA}", "\u0421\u0430\u043D\u043A\u0442-\u041F\u0435\u0442\u0435\u0440\u0431\u0443\u0440\u0433"], nskru: ["\u{1F1F7}\u{1F1FA}", "\u041D\u043E\u0432\u043E\u0441\u0438\u0431\u0438\u0440\u0441\u043A"], fr: ["\u{1F1EB}\u{1F1F7}", "\u0424\u0440\u0430\u043D\u0446\u0438\u044F"], ee: ["\u{1F1EA}\u{1F1EA}", "\u042D\u0441\u0442\u043E\u043D\u0438\u044F"], se: ["\u{1F1F8}\u{1F1EA}", "\u0428\u0432\u0435\u0446\u0438\u044F"], de: ["\u{1F1E9}\u{1F1EA}", "\u0413\u0435\u0440\u043C\u0430\u043D\u0438\u044F"], nyus: ["\u{1F1FA}\u{1F1F8}", "\u0421\u0428\u0410"], by: ["\u{1F1E7}\u{1F1FE}", "\u0411\u0435\u043B\u0430\u0440\u0443\u0441\u044C"], kz: ["\u{1F1F0}\u{1F1FF}", "\u041A\u0430\u0437\u0430\u0445\u0441\u0442\u0430\u043D"], am: ["\u{1F1E6}\u{1F1F2}", "\u0410\u0440\u043C\u0435\u043D\u0438\u044F"], mx: ["\u{1F1F2}\u{1F1FD}", "\u041C\u0435\u043A\u0441\u0438\u043A\u0430"], bg: ["\u{1F1E7}\u{1F1EC}", "\u0411\u043E\u043B\u0433\u0430\u0440\u0438\u044F"], cz: ["\u{1F1E8}\u{1F1FF}", "\u0427\u0435\u0445\u0438\u044F"], sg: ["\u{1F1F8}\u{1F1EC}", "\u0421\u0438\u043D\u0433\u0430\u043F\u0443\u0440"], "br-rul": ["\u{1F4F6}", "\u041E\u0431\u0445\u043E\u0434 \u0411\u0421 #12"], "br-rub": ["\u{1F4F6}", "\u041E\u0431\u0445\u043E\u0434 \u0411\u0421 #13"], "rev-ru": ["\u{1F1F7}\u{1F1FA}", "\u0418\u0437-\u0437\u0430 \u0440\u0443\u0431\u0435\u0436\u0430"], "tg-nl": ["\u2708\uFE0F", "\u0421\u0435\u0440\u0432\u0435\u0440 \u0434\u043B\u044F TG"] };
-  const BANDS = { l2: "g20 \xB7 2.4", l5: "g20 \xB7 5", g: "\u0413\u043E\u0441\u0442\u0438", h: "\u0423\u043C\u043D\u044B\u0439 \u0434\u043E\u043C" };
-  const esc = (s) => String(s != null ? s : "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  function isStale(ts, nowSec) {
+    return nowSec - ts >= STALE_SEC;
+  }
+  function nodeLabel(cc) {
+    if (Object.prototype.hasOwnProperty.call(NODES, cc)) return NODES[cc];
+    if (/^[a-z0-9-]{1,16}$/i.test(cc || "")) return ["\u{1F310}", cc];
+    return ["\u{1F310}", "\u043D\u0435\u0438\u0437\u0432\u0435\u0441\u0442\u043D\u044B\u0439"];
+  }
+  function pingClass(p) {
+    var n = typeof p === "number" ? p : 0;
+    if (n <= 0) return "bad";
+    if (n < 220) return "ok";
+    if (n < 400) return "mid";
+    return "bad";
+  }
+  function readParam(qs, name) {
+    var q = String(qs || "").replace(/^[?#]/, "");
+    if (!q) return null;
+    var parts = q.split("&");
+    for (var i = 0; i < parts.length; i++) {
+      var part = parts[i];
+      if (!part) continue;
+      var eq = part.indexOf("=");
+      var key = eq < 0 ? part : part.slice(0, eq);
+      var val = eq < 0 ? "" : part.slice(eq + 1);
+      var decodedKey;
+      try {
+        decodedKey = decodeURIComponent(key.replace(/\+/g, "%20"));
+      } catch (e) {
+        decodedKey = key;
+      }
+      if (decodedKey !== name) continue;
+      try {
+        return decodeURIComponent(val.replace(/\+/g, "%2B"));
+      } catch (e2) {
+        return val;
+      }
+    }
+    return null;
+  }
+  function decodeURIComponentSafe(s) {
+    try {
+      return decodeURIComponent(s);
+    } catch (e) {
+      return s;
+    }
+  }
   function b64json(h) {
     try {
-      h = decodeURIComponent(h).replace(/-/g, "+").replace(/_/g, "/").replace(/\s/g, "");
-      while (h.length % 4) h += "=";
-      const bin = atob(h);
-      let txt;
+      if (h == null) return null;
+      var s = String(h).replace(/\s/g, "").replace(/-/g, "+").replace(/_/g, "/");
+      if (!s || s.length > 2e4) return null;
+      if (!/^[A-Za-z0-9+/]+=*$/.test(s)) return null;
+      while (s.length % 4) s += "=";
+      var bin = atob(s);
+      var txt;
       try {
-        txt = new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+        var bytes = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i) & 255;
+        txt = new TextDecoder("utf-8").decode(bytes);
       } catch (e2) {
         txt = decodeURIComponent(escape(bin));
       }
-      const o = JSON.parse(txt);
-      return o && typeof o === "object" && "ts" in o ? o : null;
+      var o = JSON.parse(txt);
+      if (!o || typeof o !== "object" || Array.isArray(o)) return null;
+      return o;
     } catch (e) {
       return null;
     }
   }
-  function decode() {
-    const cands = [];
-    try {
-      const q = new URLSearchParams(location.search);
-      if (q.get("s")) cands.push(q.get("s"));
-    } catch (e) {
+  function loadState(search, hash, startParam) {
+    var cands = [];
+    var fromQuery = readParam(search, "s");
+    if (fromQuery) cands.push(fromQuery);
+    var body = hash ? String(hash).replace(/^#/, "") : "";
+    if (body) {
+      var fromHash = readParam(body, "s");
+      if (fromHash) cands.push(fromHash);
+      else if (body.indexOf("tgWebApp") !== 0 && body.indexOf("=") < 0) cands.push(decodeURIComponentSafe(body));
     }
-    try {
-      const h = location.hash.slice(1);
-      if (h) {
-        const hp = new URLSearchParams(h);
-        if (hp.get("s")) cands.push(hp.get("s"));
-        else if (!/^tgWebApp/.test(h)) cands.push(h);
-      }
-    } catch (e) {
+    if (startParam) cands.push(String(startParam));
+    var sawObject = false;
+    for (var i = 0; i < cands.length; i++) {
+      var o = b64json(cands[i]);
+      if (!o) continue;
+      sawObject = true;
+      var state = normalizeState(o);
+      if (state) return { state, status: "ok" };
     }
-    try {
-      const sp = tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param;
-      if (sp) cands.push(sp);
-    } catch (e) {
-    }
-    for (const c of cands) {
-      const o = b64json(c);
-      if (o) return o;
+    return { state: null, status: sawObject ? "bad" : "empty" };
+  }
+  function plain(v, max) {
+    if (v == null || v === false) return "";
+    return String(v).replace(/[\u0000-\u001F\u007F]/g, "").trim().slice(0, max);
+  }
+  function truthy(v) {
+    return v === true || v === 1 || v === "1";
+  }
+  function toInt(v) {
+    if (typeof v === "number" && isFinite(v)) return v | 0;
+    if (typeof v === "string" && /^-?\d+$/.test(v)) return parseInt(v, 10);
+    return 0;
+  }
+  function clampCount(v) {
+    var n = toInt(v);
+    if (n < 0) return 0;
+    if (n > 9999) return 9999;
+    return n;
+  }
+  function octetOf(v) {
+    if (typeof v === "number" && isFinite(v) && v >= 0 && v <= 255 && Math.floor(v) === v) return v;
+    if (typeof v === "string" && /^\d{1,3}$/.test(v)) {
+      var n = parseInt(v, 10);
+      if (n >= 0 && n <= 255) return n;
     }
     return null;
   }
-  const S = decode();
-  const hap = (t = "light") => {
-    try {
-      tg.HapticFeedback.impactOccurred(t);
-    } catch (e) {
-    }
-  };
-  const okHap = () => {
-    try {
-      tg.HapticFeedback.notificationOccurred("success");
-    } catch (e) {
-    }
-  };
-  function send(obj) {
-    if (!tg || !tg.sendData) {
-      alert(JSON.stringify(obj));
-      return;
-    }
-    okHap();
-    tg.sendData(JSON.stringify(obj));
+  function toPing(v) {
+    var n;
+    if (typeof v === "number") n = v;
+    else if (typeof v === "string" && /^-?\d+(\.\d+)?$/.test(v)) n = Number(v);
+    else return 0;
+    if (!isFinite(n) || n <= 0) return 0;
+    if (n > 6e4) return 6e4;
+    return Math.round(n);
   }
-  function confirmDo(text, obj) {
-    hap("medium");
-    if (tg && tg.showConfirm) tg.showConfirm(text, (ok) => ok && send(obj));
-    else if (confirm(text)) send(obj);
+  function toSignal(v) {
+    if (v == null || v === "" || v === 0 || v === "0") return null;
+    var n;
+    if (typeof v === "number") n = v;
+    else if (typeof v === "string" && /^-?\d+$/.test(v)) n = parseInt(v, 10);
+    else return null;
+    if (!isFinite(n) || n === 0) return null;
+    if (n < -120 || n > 0) return null;
+    return n;
   }
-  const nodeLabel = (cc) => NODES[cc] || ["\u{1F310}", cc || "?"];
-  function devOnline() {
-    return (S.c || []).filter((d) => Array.isArray(d) && d.length >= 5 ? d[4] & 1 : true).length;
+  function macHex(v) {
+    var s = String(v == null ? "" : v).toLowerCase().replace(/[^0-9a-f]/g, "");
+    return s.length === 12 ? s : "";
   }
-  function pingCls(p) {
-    return p <= 0 ? "bad" : p < 220 ? "ok" : p < 400 ? "mid" : "bad";
+  function formatMac(hex) {
+    if (!hex || hex.length !== 12) return "";
+    var parts = [];
+    for (var i = 0; i < 12; i += 2) parts.push(hex.slice(i, i + 2));
+    return parts.join(":");
   }
-  function render() {
-    const app = document.getElementById("app");
-    if (!S) {
-      app.innerHTML = '<div class="err"><div style="font-size:44px">\u{1F6DC}</div><p><b>\u041D\u0435\u0442 \u0441\u0432\u0435\u0436\u0438\u0445 \u0434\u0430\u043D\u043D\u044B\u0445 \u043E \u0440\u043E\u0443\u0442\u0435\u0440\u0435</b></p>\n      <p>\u041D\u0430\u0436\u043C\u0438\u0442\u0435 \xAB\u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C \u0434\u0430\u043D\u043D\u044B\u0435\xBB \u2014 \u0431\u043E\u0442 \u043F\u0440\u0438\u0448\u043B\u0451\u0442 \u043D\u043E\u0432\u0443\u044E \u043A\u043D\u043E\u043F\u043A\u0443 \xAB\u0420\u043E\u0443\u0442\u0435\u0440\xBB. \u0415\u0441\u043B\u0438 \u043D\u0435 \u0441\u0440\u0430\u0431\u043E\u0442\u0430\u043B\u043E, \u0437\u0430\u043A\u0440\u043E\u0439\u0442\u0435 \u043E\u043A\u043D\u043E \u0438 \u043D\u0430\u0436\u043C\u0438\u0442\u0435 \u043A\u043D\u043E\u043F\u043A\u0443 \xAB\u0420\u043E\u0443\u0442\u0435\u0440\xBB \u0432\u043D\u0438\u0437\u0443 \u0447\u0430\u0442\u0430 (\u0438\u043B\u0438 \u043E\u0442\u043F\u0440\u0430\u0432\u044C\u0442\u0435 \u0431\u043E\u0442\u0443 /panel).</p></div>\n      <button class="btn" id="refresh">\u{1F504} \u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C \u0434\u0430\u043D\u043D\u044B\u0435</button><div class="foot">'.concat(PANEL_VER, "</div>");
-      document.getElementById("refresh").onclick = () => {
-        hap();
-        try {
-          if (tg && tg.sendData && tg.initData === "") {
-            tg.sendData(JSON.stringify({ a: "refresh" }));
-            return;
-          }
-        } catch (e) {
-        }
-        try {
-          tg.sendData(JSON.stringify({ a: "refresh" }));
-        } catch (e) {
-          if (tg && tg.showAlert) tg.showAlert("\u0417\u0430\u043A\u0440\u043E\u0439\u0442\u0435 \u043E\u043A\u043D\u043E \u0438 \u043D\u0430\u0436\u043C\u0438\u0442\u0435 \u043A\u043D\u043E\u043F\u043A\u0443 \xAB\u0420\u043E\u0443\u0442\u0435\u0440\xBB \u043F\u043E\u0434 \u043F\u043E\u043B\u0435\u043C \u0432\u0432\u043E\u0434\u0430 \u0438\u043B\u0438 \u043E\u0442\u043F\u0440\u0430\u0432\u044C\u0442\u0435 /panel.");
-        }
+  function cleanName(v) {
+    return plain(v, 24);
+  }
+  function cleanPrefix(v) {
+    var s = plain(v, 18);
+    if (!/^\d{1,3}(\.\d{1,3}){1,3}\.?$/.test(s)) return "";
+    return s.charAt(s.length - 1) === "." ? s : s + ".";
+  }
+  function parseSub(raw) {
+    var out = { m: "", g: "", h: "" };
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return out;
+    out.m = cleanPrefix(raw.m);
+    out.g = cleanPrefix(raw.g);
+    out.h = cleanPrefix(raw.h);
+    return out;
+  }
+  function netOf(code) {
+    var s = String(code == null ? "" : code);
+    return Object.prototype.hasOwnProperty.call(BAND_TO_NET, s) ? BAND_TO_NET[s] : "";
+  }
+  function parseNode(row) {
+    if (!Array.isArray(row) || !row.length) return null;
+    var tag = String(row[0] == null ? "" : row[0]);
+    if (!/^[A-Za-z0-9_-]{1,32}$/.test(tag)) return null;
+    var cc = typeof row[1] === "string" ? row[1] : "";
+    return { tag, cc, ping: toPing(row[2]) };
+  }
+  function parseDevice(row, sub) {
+    if (!Array.isArray(row) || row.length < 3) return null;
+    var net = netOf(row[2]);
+    if (!net) return null;
+    var name = cleanName(row[0]);
+    var band = Object.prototype.hasOwnProperty.call(BAND_LABEL, row[2]) ? BAND_LABEL[row[2]] : "";
+    var prefixes = sub || { m: "", g: "", h: "" };
+    if (row.length >= 5 && macHex(row[3])) {
+      var oct = octetOf(row[1]);
+      var ip = "";
+      if (oct != null && prefixes[net]) ip = prefixes[net] + String(oct);
+      else if (oct != null) ip = "." + String(oct);
+      var flags = toInt(row[4]);
+      return {
+        name,
+        net,
+        band,
+        ip,
+        mac: macHex(row[3]),
+        online: (flags & 1) === 1,
+        blocked: (flags & 2) === 2,
+        signal: toSignal(row[5]),
+        manageable: true
       };
+    }
+    if (row.length >= 5) return null;
+    var legacyIp = plain(row[1], 64);
+    return {
+      name,
+      net,
+      band,
+      ip: legacyIp,
+      mac: "",
+      online: true,
+      blocked: false,
+      signal: toSignal(row[3]),
+      manageable: false
+    };
+  }
+  function normalizeState(o) {
+    if (!o || typeof o !== "object" || Array.isArray(o)) return null;
+    var ts = o.ts;
+    if (typeof ts === "string" && /^\d{10,13}$/.test(ts)) ts = Number(ts);
+    if (typeof ts !== "number" || !isFinite(ts)) return null;
+    if (ts > 1e12) ts = Math.round(ts / 1e3);
+    if (ts < 1577836800) return null;
+    var sub = parseSub(o.sub);
+    var nodes = [];
+    var rawNodes = Array.isArray(o.n) ? o.n : [];
+    for (var i = 0; i < rawNodes.length && nodes.length < 64; i++) {
+      var node = parseNode(rawNodes[i]);
+      if (node) nodes.push(node);
+    }
+    var devices = [];
+    var seen = /* @__PURE__ */ Object.create(null);
+    var skipped = 0;
+    var rawDevs = Array.isArray(o.c) ? o.c : [];
+    for (var j = 0; j < rawDevs.length && devices.length < 200; j++) {
+      if (!Array.isArray(rawDevs[j])) {
+        skipped++;
+        continue;
+      }
+      var dev = parseDevice(rawDevs[j], sub);
+      if (!dev) {
+        skipped++;
+        continue;
+      }
+      if (dev.mac) {
+        if (seen[dev.mac]) {
+          skipped++;
+          continue;
+        }
+        seen[dev.mac] = 1;
+      }
+      devices.push(dev);
+    }
+    if (rawDevs.length > 200) skipped += rawDevs.length - 200;
+    var sel = typeof o.sel === "string" ? o.sel : "";
+    if (sel !== "AUTO" && !/^[A-Za-z0-9_-]{1,32}$/.test(sel)) sel = "";
+    var auto = typeof o.auto === "string" && /^[A-Za-z0-9_-]{1,32}$/.test(o.auto) ? o.auto : "";
+    return {
+      ts,
+      vpn: truthy(o.vpn),
+      guest: truthy(o.g),
+      adguard: truthy(o.a),
+      sel,
+      auto,
+      uptime: plain(o.up, 32),
+      mem: plain(o.m, 32),
+      load: plain(o.ld, 32),
+      wan: plain(o.w, 64),
+      wanExtra: plain(o.e, 64),
+      nodes,
+      devices,
+      skipped,
+      hiddenHome: clampCount(o.hg),
+      hiddenOffline: clampCount(o.co),
+      sub,
+      hasSub: !!(sub.m || sub.g || sub.h)
+    };
+  }
+  function onlineCount(devices) {
+    var n = 0;
+    for (var i = 0; i < (devices || []).length; i++) if (devices[i].online) n++;
+    return n;
+  }
+  function findNode(state, tag) {
+    if (!state || !tag) return null;
+    for (var i = 0; i < state.nodes.length; i++) {
+      if (state.nodes[i].tag === tag) return state.nodes[i];
+    }
+    return null;
+  }
+  function vpnTitle(state) {
+    if (!state.vpn) return "\u0412\u044B\u043A\u043B\u044E\u0447\u0435\u043D";
+    if (state.sel === "AUTO") {
+      var auto = findNode(state, state.auto);
+      var tail = auto ? nodeLabel(auto.cc).join(" ") : "\u0432\u044B\u0431\u0438\u0440\u0430\u0435\u0442\u0441\u044F";
+      return "\u0410\u0432\u0442\u043E \u2192 " + tail;
+    }
+    var node = findNode(state, state.sel);
+    if (!node) return "\u0412\u043A\u043B\u044E\u0447\u0451\u043D";
+    return nodeLabel(node.cc).join(" ");
+  }
+  function isInsideTelegram(tg, nowSec) {
+    if (!tg) return false;
+    var data = "";
+    var platform = "";
+    try {
+      data = String(tg.initData || "");
+    } catch (e) {
+      return false;
+    }
+    try {
+      platform = String(tg.platform || "");
+    } catch (e2) {
+      return false;
+    }
+    if (!data || !platform || platform === "unknown") return false;
+    if (!/(^|&)hash=[0-9a-f]{64}(&|$)/i.test(data)) return false;
+    var m = data.match(/(?:^|&)auth_date=(\d{9,12})(?:&|$)/);
+    if (!m) return false;
+    var auth = Number(m[1]);
+    var now = nowSec == null ? Math.round(Date.now() / 1e3) : nowSec;
+    if (auth > now + 86400) return false;
+    return true;
+  }
+  function authAge(initData, nowSec) {
+    var m = String(initData || "").match(/(?:^|&)auth_date=(\d{9,12})(?:&|$)/);
+    if (!m) return null;
+    return nowSec - Number(m[1]);
+  }
+  function onlyKeys(obj, keys) {
+    var present = [];
+    for (var k in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, k)) present.push(k);
+    }
+    if (present.length !== keys.length) return false;
+    for (var i = 0; i < keys.length; i++) {
+      if (!Object.prototype.hasOwnProperty.call(obj, keys[i])) return false;
+    }
+    return true;
+  }
+  function validateAction(obj) {
+    if (!obj || typeof obj !== "object" || Array.isArray(obj)) return "\u041D\u0435\u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u0430\u044F \u043A\u043E\u043C\u0430\u043D\u0434\u0430.";
+    var a = obj.a;
+    if (a === "refresh" || a === "speed" || a === "report" || a === "reboot") {
+      return onlyKeys(obj, ["a"]) ? "" : "\u041D\u0435\u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u0430\u044F \u043A\u043E\u043C\u0430\u043D\u0434\u0430.";
+    }
+    if (a === "vpn" || a === "guest") {
+      if (!onlyKeys(obj, ["a", "v"])) return "\u041D\u0435\u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u0430\u044F \u043A\u043E\u043C\u0430\u043D\u0434\u0430.";
+      return obj.v === 0 || obj.v === 1 ? "" : "\u041D\u0435\u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u0430\u044F \u043A\u043E\u043C\u0430\u043D\u0434\u0430.";
+    }
+    if (a === "sel") {
+      if (!onlyKeys(obj, ["a", "t"])) return "\u041D\u0435\u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u0430\u044F \u043A\u043E\u043C\u0430\u043D\u0434\u0430.";
+      if (obj.t === "AUTO" || /^[A-Za-z0-9_-]{1,32}$/.test(obj.t || "")) return "";
+      return "\u041D\u0435\u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u044B\u0439 \u0441\u0435\u0440\u0432\u0435\u0440.";
+    }
+    if (a === "ren") {
+      if (!onlyKeys(obj, ["a", "m", "n"])) return "\u041D\u0435\u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u0430\u044F \u043A\u043E\u043C\u0430\u043D\u0434\u0430.";
+      if (!macHex(obj.m)) return "\u041D\u0435\u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u044B\u0439 \u0430\u0434\u0440\u0435\u0441 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430. \u041E\u0431\u043D\u043E\u0432\u0438\u0442\u0435 \u0434\u0430\u043D\u043D\u044B\u0435.";
+      if (typeof obj.n !== "string" || !obj.n.length || obj.n.length > 24) return "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0438\u043C\u044F \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430.";
+      if (/[\u0000-\u001F\u007F]/.test(obj.n)) return "\u0418\u043C\u044F \u0441\u043E\u0434\u0435\u0440\u0436\u0438\u0442 \u043D\u0435\u0434\u043E\u043F\u0443\u0441\u0442\u0438\u043C\u044B\u0435 \u0441\u0438\u043C\u0432\u043E\u043B\u044B.";
+      return "";
+    }
+    if (a === "blk") {
+      if (!onlyKeys(obj, ["a", "m", "v"])) return "\u041D\u0435\u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u0430\u044F \u043A\u043E\u043C\u0430\u043D\u0434\u0430.";
+      if (!macHex(obj.m)) return "\u041D\u0435\u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u044B\u0439 \u0430\u0434\u0440\u0435\u0441 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430. \u041E\u0431\u043D\u043E\u0432\u0438\u0442\u0435 \u0434\u0430\u043D\u043D\u044B\u0435.";
+      return obj.v === 0 || obj.v === 1 ? "" : "\u041D\u0435\u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u0430\u044F \u043A\u043E\u043C\u0430\u043D\u0434\u0430.";
+    }
+    return "\u041D\u0435\u0438\u0437\u0432\u0435\u0441\u0442\u043D\u0430\u044F \u043A\u043E\u043C\u0430\u043D\u0434\u0430.";
+  }
+  function deviceLine(d) {
+    var bits = [];
+    if (d.ip) bits.push(d.ip);
+    if (d.band) bits.push(d.band);
+    if (!d.online) bits.push("\u043D\u0435 \u0432 \u0441\u0435\u0442\u0438");
+    else if (d.signal == null) bits.push("\u043F\u043E \u043A\u0430\u0431\u0435\u043B\u044E");
+    else bits.push(String(d.signal) + " dBm");
+    return bits.join(" \xB7 ");
+  }
+  function hiddenHomeText(n) {
+    return "\u0415\u0449\u0451 " + n + " " + plural(n, "\u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E", "\u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430", "\u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432") + " \u0443\u043C\u043D\u043E\u0433\u043E \u0434\u043E\u043C\u0430";
+  }
+  var NET_ORDER = ["m", "g", "h"];
+
+  // panel.src.js
+  var PANEL_VER = "v6 \xB7 24.11";
+  var NET_META = {
+    m: { icon: "\u{1F3E0}", title: "\u041E\u0441\u043D\u043E\u0432\u043D\u0430\u044F \u0441\u0435\u0442\u044C \xB7 g20", dev: "\u{1F4F1}" },
+    g: { icon: "\u{1F465}", title: "\u0413\u043E\u0441\u0442\u0435\u0432\u0430\u044F \xB7 g20-guest", dev: "\u{1F464}" },
+    h: { icon: "\u{1F4A1}", title: "\u0423\u043C\u043D\u044B\u0439 \u0434\u043E\u043C \xB7 g20-home", dev: "\u{1F4A1}" }
+  };
+  function showFatal() {
+    var app = document.getElementById("app");
+    if (!app) return;
+    while (app.firstChild) app.removeChild(app.firstChild);
+    var box = document.createElement("div");
+    box.className = "err";
+    box.setAttribute("role", "alert");
+    var icon = document.createElement("div");
+    icon.className = "icon";
+    icon.textContent = "\u26A0\uFE0F";
+    var title = document.createElement("p");
+    var b = document.createElement("b");
+    b.textContent = "\u041F\u0430\u043D\u0435\u043B\u044C \u043D\u0435 \u043E\u0442\u043A\u0440\u044B\u043B\u0430\u0441\u044C";
+    title.appendChild(b);
+    var text = document.createElement("p");
+    text.textContent = "\u0417\u0430\u043A\u0440\u043E\u0439\u0442\u0435 \u043E\u043A\u043D\u043E \u0438 \u043E\u0442\u043F\u0440\u0430\u0432\u044C\u0442\u0435 \u0431\u043E\u0442\u0443 /panel. \u0415\u0441\u043B\u0438 \u043D\u0435 \u043F\u043E\u043C\u043E\u0436\u0435\u0442 \u2014 \u043F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u0438\u043D\u0442\u0435\u0440\u043D\u0435\u0442 \u0438 \u043E\u0442\u043A\u0440\u043E\u0439\u0442\u0435 \u0441\u043D\u043E\u0432\u0430.";
+    box.appendChild(icon);
+    box.appendChild(title);
+    box.appendChild(text);
+    app.appendChild(box);
+  }
+  window.onerror = function() {
+    var app = document.getElementById("app");
+    if (app && app.getAttribute("data-booted") !== "1") {
+      showFatal();
+      return true;
+    }
+    return false;
+  };
+  function el(tag, attrs) {
+    var node = document.createElement(tag);
+    if (attrs) {
+      for (var k in attrs) {
+        if (!Object.prototype.hasOwnProperty.call(attrs, k) || attrs[k] == null || attrs[k] === false) continue;
+        if (k === "class") node.className = attrs[k];
+        else if (k === "text") node.textContent = attrs[k];
+        else node.setAttribute(k, String(attrs[k]));
+      }
+    }
+    for (var i = 2; i < arguments.length; i++) {
+      var child = arguments[i];
+      if (child == null || child === false) continue;
+      node.appendChild(typeof child === "string" ? document.createTextNode(child) : child);
+    }
+    return node;
+  }
+  function hexToRgba(hex, alpha) {
+    var h = String(hex || "").replace("#", "");
+    if (h.length === 3) h = h.charAt(0) + h.charAt(0) + h.charAt(1) + h.charAt(1) + h.charAt(2) + h.charAt(2);
+    if (!/^[0-9a-fA-F]{6}$/.test(h)) return "rgba(36,129,204," + alpha + ")";
+    var n = parseInt(h, 16);
+    return "rgba(" + (n >> 16 & 255) + "," + (n >> 8 & 255) + "," + (n & 255) + "," + alpha + ")";
+  }
+  function boot() {
+    if (window.__g20timer) clearTimeout(window.__g20timer);
+    var app = document.getElementById("app");
+    if (!app) return;
+    app.setAttribute("data-booted", "1");
+    var tg = window.Telegram && window.Telegram.WebApp;
+    var ctl = { busy: false };
+    function send(obj, onFail) {
+      if (ctl.busy) return;
+      var problem = validateAction(obj);
+      if (problem) {
+        toast(problem);
+        hapNote("error");
+        if (onFail) onFail();
+        return;
+      }
+      var payload;
+      try {
+        payload = JSON.stringify(obj);
+      } catch (e) {
+        toast("\u041D\u0435\u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u0430\u044F \u043A\u043E\u043C\u0430\u043D\u0434\u0430.");
+        hapNote("error");
+        if (onFail) onFail();
+        return;
+      }
+      if (!insideTelegram() || !tg || !tg.sendData) {
+        toast("\u041E\u0442\u043A\u0440\u043E\u0439\u0442\u0435 \u043F\u0430\u043D\u0435\u043B\u044C \u0432 Telegram \u043A\u043D\u043E\u043F\u043A\u043E\u0439 \xAB\u0420\u043E\u0443\u0442\u0435\u0440\xBB.");
+        hapNote("error");
+        if (onFail) onFail();
+        return;
+      }
+      ctl.busy = true;
+      app.setAttribute("aria-busy", "true");
+      toast("\u041E\u0442\u043F\u0440\u0430\u0432\u043B\u044F\u044E \u0431\u043E\u0442\u0443\u2026");
+      var bridged = bridgeLikely();
+      try {
+        tg.sendData(payload);
+      } catch (e2) {
+        ctl.busy = false;
+        app.removeAttribute("aria-busy");
+        console.error(e2);
+        toast("\u041D\u0435 \u043F\u043E\u043B\u0443\u0447\u0438\u043B\u043E\u0441\u044C \u043E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C \u043A\u043E\u043C\u0430\u043D\u0434\u0443. \u0417\u0430\u043A\u0440\u043E\u0439\u0442\u0435 \u043E\u043A\u043D\u043E \u0438 \u043E\u0442\u043A\u0440\u043E\u0439\u0442\u0435 \u043F\u0430\u043D\u0435\u043B\u044C \u043A\u043D\u043E\u043F\u043A\u043E\u0439 \xAB\u0420\u043E\u0443\u0442\u0435\u0440\xBB.");
+        hapNote("error");
+        if (onFail) onFail();
+        return;
+      }
+      if (!bridged) {
+        ctl.busy = false;
+        app.removeAttribute("aria-busy");
+        hapNote("warning");
+        toast("Telegram \u043D\u0435 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u043B \u043E\u0442\u043F\u0440\u0430\u0432\u043A\u0443. \u0417\u0430\u043A\u0440\u043E\u0439\u0442\u0435 \u043E\u043A\u043D\u043E \u0438 \u043D\u0430\u0436\u043C\u0438\u0442\u0435 \xAB\u0420\u043E\u0443\u0442\u0435\u0440\xBB \u0432\u043D\u0438\u0437\u0443 \u0447\u0430\u0442\u0430.");
+        if (onFail) onFail();
+        return;
+      }
+      hapNote("success");
+      setTimeout(function() {
+        toast("\u041A\u043E\u043C\u0430\u043D\u0434\u0430 \u0443\u0448\u043B\u0430 \u0431\u043E\u0442\u0443. \u0415\u0441\u043B\u0438 \u043E\u0442\u0432\u0435\u0442\u0430 \u043D\u0435\u0442 \u2014 \u0437\u0430\u043A\u0440\u043E\u0439\u0442\u0435 \u043E\u043A\u043D\u043E \u0438 \u043D\u0430\u0436\u043C\u0438\u0442\u0435 \xAB\u0420\u043E\u0443\u0442\u0435\u0440\xBB \u0432\u043D\u0438\u0437\u0443 \u0447\u0430\u0442\u0430.");
+      }, 1200);
+    }
+    function insideTelegram() {
+      return isInsideTelegram(tg, Math.round(Date.now() / 1e3));
+    }
+    var now = Math.round(Date.now() / 1e3);
+    var inside = isInsideTelegram(tg, now);
+    function applyChrome() {
+      if (!tg) return;
+      var scheme = "light";
+      try {
+        scheme = tg.colorScheme === "dark" ? "dark" : "light";
+      } catch (e) {
+      }
+      document.documentElement.style.colorScheme = scheme;
+      var accent = "#2481cc";
+      var pageBg = scheme === "dark" ? "#1c1c1d" : "#f2f2f7";
+      try {
+        if (tg.themeParams && tg.themeParams.button_color) accent = tg.themeParams.button_color;
+        if (tg.themeParams && tg.themeParams.secondary_bg_color) pageBg = tg.themeParams.secondary_bg_color;
+      } catch (e2) {
+      }
+      document.documentElement.style.setProperty("--acc-soft", hexToRgba(accent, ".12"));
+      var meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute("content", pageBg);
+      try {
+        tg.setHeaderColor("secondary_bg_color");
+      } catch (e3) {
+      }
+      try {
+        tg.setBackgroundColor("secondary_bg_color");
+      } catch (e4) {
+      }
+      try {
+        if (!tg.isVersionAtLeast || tg.isVersionAtLeast("7.10")) tg.setBottomBarColor("secondary_bg_color");
+      } catch (e5) {
+      }
+    }
+    if (tg) {
+      try {
+        tg.ready();
+      } catch (e) {
+      }
+      try {
+        tg.expand();
+      } catch (e2) {
+      }
+      try {
+        if (!tg.isVersionAtLeast || tg.isVersionAtLeast("7.7")) tg.disableVerticalSwipes();
+      } catch (e3) {
+      }
+      applyChrome();
+      try {
+        tg.onEvent("themeChanged", applyChrome);
+      } catch (e4) {
+      }
+      setTimeout(function() {
+        try {
+          tg.expand();
+        } catch (e5) {
+        }
+      }, 80);
+    }
+    if (window.__tgFailed || inside && !tg) {
+      renderMessage(app, {
+        icon: "\u26A0\uFE0F",
+        title: "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u043F\u0430\u043D\u0435\u043B\u044C",
+        text: "\u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u0438\u043D\u0442\u0435\u0440\u043D\u0435\u0442 \u0438 \u043E\u0442\u043A\u0440\u043E\u0439\u0442\u0435 \u043F\u0430\u043D\u0435\u043B\u044C \u0435\u0449\u0451 \u0440\u0430\u0437. \u0415\u0441\u043B\u0438 \u043E\u0442\u043A\u0440\u044B\u0442\u043E \u0432 Telegram \u2014 \u0437\u0430\u043A\u0440\u043E\u0439\u0442\u0435 \u043E\u043A\u043D\u043E \u0438 \u043D\u0430\u0436\u043C\u0438\u0442\u0435 \xAB\u0420\u043E\u0443\u0442\u0435\u0440\xBB.",
+        button: "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u044C",
+        onClick: function() {
+          location.reload();
+        }
+      });
       return;
     }
-    const ago = Math.max(0, Math.round(Date.now() / 1e3 - S.ts));
-    const agoTxt = ago < 60 ? "\u0442\u043E\u043B\u044C\u043A\u043E \u0447\u0442\u043E" : ago < 3600 ? Math.round(ago / 60) + " \u043C\u0438\u043D \u043D\u0430\u0437\u0430\u0434" : Math.round(ago / 3600) + " \u0447 \u043D\u0430\u0437\u0430\u0434";
-    const byTag = Object.fromEntries((S.n || []).map((n) => [n[0], n]));
-    const autoCC = byTag[S.auto] ? byTag[S.auto][1] : null;
-    let cur;
-    if (!S.vpn) cur = "\u0412\u044B\u043A\u043B\u044E\u0447\u0435\u043D";
-    else if (S.sel === "AUTO") cur = "\u0410\u0432\u0442\u043E \u2192 " + nodeLabel(autoCC).join(" ");
-    else cur = nodeLabel(byTag[S.sel] ? byTag[S.sel][1] : null).join(" ");
-    let h = "";
-    h += '<div class="hero">\n    <div class="tile"><div class="k">VPN</div><div class="v">'.concat(S.vpn ? "\u{1F6E1}\uFE0F " + esc(cur) : "\u26D4 \u0412\u044B\u043A\u043B\u044E\u0447\u0435\u043D", '</div></div>\n    <div class="tile"><div class="k">\u0423\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432 \u0432 \u0441\u0435\u0442\u0438</div><div class="v">\u{1F4F1} ').concat(devOnline(), '</div></div>\n    <div class="tile"><div class="k">\u0420\u0430\u0431\u043E\u0442\u0430\u0435\u0442</div><div class="v">\u23F1 ').concat(esc(S.up), '</div></div>\n    <div class="tile"><div class="k">\u041F\u0430\u043C\u044F\u0442\u044C \xB7 \u043D\u0430\u0433\u0440\u0443\u0437\u043A\u0430</div><div class="v">').concat(esc(S.m), " \xB7 ").concat(esc(S.ld), "</div></div>\n  </div>");
-    h += '<h2>\u0423\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435</h2><div class="card">\n    <label class="row"><span class="ic">\u{1F6E1}\uFE0F</span><div class="t">VPN (Podkop)<div class="s">\u0417\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0435 \u0441\u0430\u0439\u0442\u044B \u0447\u0435\u0440\u0435\u0437 VPN, \u043E\u0441\u0442\u0430\u043B\u044C\u043D\u043E\u0435 \u043D\u0430\u043F\u0440\u044F\u043C\u0443\u044E</div></div>\n      <span class="sw"><input type="checkbox" id="vpn" '.concat(S.vpn ? "checked" : "", '><span></span></span></label>\n    <label class="row"><span class="ic">\u{1F465}</span><div class="t">\u0413\u043E\u0441\u0442\u0435\u0432\u043E\u0439 Wi\u2011Fi<div class="s">g20-guest</div></div>\n      <span class="sw"><input type="checkbox" id="guest" ').concat(S.g ? "checked" : "", '><span></span></span></label>\n    <div class="row"><span class="ic">\u{1F6AB}</span><div class="t">\u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0430 \u0440\u0435\u043A\u043B\u0430\u043C\u044B<div class="s">AdGuard Home</div></div><span class="s">').concat(S.a ? "\u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442" : "\u0432\u044B\u043A\u043B\u044E\u0447\u0435\u043D\u0430", "</span></div>\n  </div>");
-    if (S.vpn && S.n && S.n.length) {
-      h += '<h2>\u0421\u0435\u0440\u0432\u0435\u0440 VPN</h2><div class="card">';
-      const ap = byTag[S.auto] ? byTag[S.auto][2] : 0;
-      h += '<div class="row srv '.concat(S.sel === "AUTO" ? "on" : "", '" data-t="AUTO"><span class="chk">').concat(S.sel === "AUTO" ? "\u2713" : "", '</span><span class="ic">\u26A1</span>\n      <div class="t">\u0410\u0432\u0442\u043E (\u043B\u0443\u0447\u0448\u0438\u0439)<div class="s">\u0441\u0435\u0439\u0447\u0430\u0441: ').concat(esc(nodeLabel(autoCC).join(" ")), '</div></div><span class="ping ').concat(pingCls(ap), '">').concat(ap > 0 ? ap + " \u043C\u0441" : "", "</span></div>");
-      for (const [tag, cc, p] of S.n) {
-        const [fl, nm] = nodeLabel(cc), on = S.sel === tag;
-        h += '<div class="row srv '.concat(on ? "on" : "", " ").concat(p > 0 ? "" : "dead", '" data-t="').concat(esc(tag), '"><span class="chk">').concat(on ? "\u2713" : "", '</span><span class="ic">').concat(fl, '</span>\n        <div class="t">').concat(esc(nm), '</div><span class="ping ').concat(pingCls(p), '">').concat(p > 0 ? p + " \u043C\u0441" : "\u043D\u0435\u0442 \u0441\u0432\u044F\u0437\u0438", "</span></div>");
-      }
-      h += "</div>";
+    var search = "";
+    var hash = "";
+    try {
+      var href = String(location.href);
+      var hi = href.indexOf("#");
+      var beforeHash = hi < 0 ? href : href.slice(0, hi);
+      hash = hi < 0 ? "" : href.slice(hi);
+      var qi = beforeHash.indexOf("?");
+      search = qi < 0 ? "" : beforeHash.slice(qi);
+    } catch (e6) {
+      search = location.search || "";
+      hash = location.hash || "";
     }
-    const NETS = [["m", "\u{1F3E0} \u041E\u0441\u043D\u043E\u0432\u043D\u0430\u044F \u0441\u0435\u0442\u044C \xB7 g20"], ["g", "\u{1F465} \u0413\u043E\u0441\u0442\u0435\u0432\u0430\u044F \xB7 g20-guest"], ["h", "\u{1F4A1} \u0423\u043C\u043D\u044B\u0439 \u0434\u043E\u043C \xB7 g20-home"]];
-    const subnet = { m: "192.168.1.", g: "192.168.2.", h: "192.168.3." };
-    for (const [nk, title] of NETS) {
-      const list = (S.c || []).filter((d) => d[2] === nk);
-      const hidden = nk === "h" ? S.hg || 0 : 0;
+    try {
+      historyReplaceStripS();
+    } catch (e7) {
+    }
+    if (!inside) {
+      renderMessage(app, {
+        icon: "\u{1F6DC}",
+        title: "\u041F\u0430\u043D\u0435\u043B\u044C \u0440\u043E\u0443\u0442\u0435\u0440\u0430 g20",
+        text: "\u042D\u0442\u0430 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0430 \u043E\u0442\u043A\u0440\u044B\u0432\u0430\u0435\u0442\u0441\u044F \u0432 Telegram. \u0412 \u0447\u0430\u0442\u0435 \u0441 \u0431\u043E\u0442\u043E\u043C \u043D\u0430\u0436\u043C\u0438\u0442\u0435 \u043A\u043D\u043E\u043F\u043A\u0443 \xAB\u0420\u043E\u0443\u0442\u0435\u0440\xBB \u0432\u043D\u0438\u0437\u0443 \u0438\u043B\u0438 \u043E\u0442\u043F\u0440\u0430\u0432\u044C\u0442\u0435 /panel."
+      });
+      return;
+    }
+    var startParam = "";
+    try {
+      startParam = tg.initDataUnsafe && tg.initDataUnsafe.start_param || "";
+    } catch (e8) {
+    }
+    var loaded = loadState(search, hash, startParam && String(startParam).length >= 24 ? startParam : "");
+    if (!loaded.state) {
+      var bad = loaded.status === "bad";
+      renderMessage(app, {
+        icon: bad ? "\u26A0\uFE0F" : "\u{1F6DC}",
+        title: bad ? "\u0414\u0430\u043D\u043D\u044B\u0435 \u0432 \u0441\u0441\u044B\u043B\u043A\u0435 \u043F\u043E\u0432\u0440\u0435\u0436\u0434\u0435\u043D\u044B" : "\u041D\u0435\u0442 \u0441\u0432\u0435\u0436\u0438\u0445 \u0434\u0430\u043D\u043D\u044B\u0445 \u043E \u0440\u043E\u0443\u0442\u0435\u0440\u0435",
+        text: bad ? "\u041D\u0430\u0436\u043C\u0438\u0442\u0435 \xAB\u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C \u0434\u0430\u043D\u043D\u044B\u0435\xBB \u2014 \u0431\u043E\u0442 \u043F\u0440\u0438\u0448\u043B\u0451\u0442 \u043D\u043E\u0432\u0443\u044E \u043A\u043D\u043E\u043F\u043A\u0443 \xAB\u0420\u043E\u0443\u0442\u0435\u0440\xBB. \u0415\u0441\u043B\u0438 \u043D\u0438\u0447\u0435\u0433\u043E \u043D\u0435 \u043F\u0440\u0438\u0448\u043B\u043E, \u0437\u0430\u043A\u0440\u043E\u0439\u0442\u0435 \u043E\u043A\u043D\u043E \u0438 \u043D\u0430\u0436\u043C\u0438\u0442\u0435 \xAB\u0420\u043E\u0443\u0442\u0435\u0440\xBB \u043F\u043E\u0434 \u043F\u043E\u043B\u0435\u043C \u0432\u0432\u043E\u0434\u0430 \u0438\u043B\u0438 \u043E\u0442\u043F\u0440\u0430\u0432\u044C\u0442\u0435 /panel." : "\u041D\u0430\u0436\u043C\u0438\u0442\u0435 \xAB\u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C \u0434\u0430\u043D\u043D\u044B\u0435\xBB \u2014 \u0431\u043E\u0442 \u043F\u0440\u0438\u0448\u043B\u0451\u0442 \u043D\u043E\u0432\u0443\u044E \u043A\u043D\u043E\u043F\u043A\u0443 \xAB\u0420\u043E\u0443\u0442\u0435\u0440\xBB. \u0415\u0441\u043B\u0438 \u043D\u0435 \u0441\u0440\u0430\u0431\u043E\u0442\u0430\u043B\u043E, \u0437\u0430\u043A\u0440\u043E\u0439\u0442\u0435 \u043E\u043A\u043D\u043E \u0438 \u043D\u0430\u0436\u043C\u0438\u0442\u0435 \u043A\u043D\u043E\u043F\u043A\u0443 \xAB\u0420\u043E\u0443\u0442\u0435\u0440\xBB \u0432\u043D\u0438\u0437\u0443 \u0447\u0430\u0442\u0430 \u0438\u043B\u0438 \u043E\u0442\u043F\u0440\u0430\u0432\u044C\u0442\u0435 /panel.",
+        button: "\u{1F504} \u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C \u0434\u0430\u043D\u043D\u044B\u0435",
+        onClick: function() {
+          send({ a: "refresh" });
+        }
+      });
+      return;
+    }
+    renderPanel(app, tg, loaded.state, now, ctl, send);
+  }
+  function historyReplaceStripS() {
+    var href = String(location.href);
+    var hash = "";
+    var hi = href.indexOf("#");
+    if (hi >= 0) {
+      hash = href.slice(hi);
+      href = href.slice(0, hi);
+    }
+    var qi = href.indexOf("?");
+    if (qi < 0) return;
+    var path = href.slice(0, qi);
+    var parts = href.slice(qi + 1).split("&");
+    var kept = [];
+    var had = false;
+    for (var i = 0; i < parts.length; i++) {
+      if (!parts[i]) continue;
+      var eq = parts[i].indexOf("=");
+      var key = eq < 0 ? parts[i] : parts[i].slice(0, eq);
+      try {
+        key = decodeURIComponent(key.replace(/\+/g, "%20"));
+      } catch (e) {
+      }
+      if (key === "s") {
+        had = true;
+        continue;
+      }
+      kept.push(parts[i]);
+    }
+    if (!had || !history.replaceState) return;
+    history.replaceState(null, "", path + (kept.length ? "?" + kept.join("&") : "") + hash);
+  }
+  function renderMessage(app, opts) {
+    while (app.firstChild) app.removeChild(app.firstChild);
+    var box = el(
+      "div",
+      { class: "err", role: "status" },
+      el("div", { class: "icon", "aria-hidden": "true", text: opts.icon }),
+      el("p", {}, el("b", { text: opts.title })),
+      el("p", { text: opts.text })
+    );
+    app.appendChild(box);
+    if (opts.button) {
+      var btn = el("button", { class: "btn", type: "button", id: "refresh", text: opts.button });
+      btn.addEventListener("click", function() {
+        hapSel();
+        opts.onClick();
+      });
+      app.appendChild(btn);
+    }
+    app.appendChild(el("div", { class: "foot", text: PANEL_VER }));
+  }
+  function renderPanel(app, tg, state, now, ctl, send) {
+    while (app.firstChild) app.removeChild(app.firstChild);
+    var pendingConfirm = false;
+    var stack = [];
+    var main = el("main");
+    main.appendChild(el("h1", { class: "sr", text: "\u0420\u043E\u0443\u0442\u0435\u0440 g20" }));
+    if (isStale(state.ts, now)) {
+      main.appendChild(el("div", {
+        class: "note warn",
+        role: "status",
+        text: "\u0414\u0430\u043D\u043D\u044B\u0435 " + agoText(state.ts, now) + ". \u041B\u0443\u0447\u0448\u0435 \u043E\u0431\u043D\u043E\u0432\u0438\u0442\u044C, \u043F\u0440\u0435\u0436\u0434\u0435 \u0447\u0435\u043C \u0447\u0442\u043E-\u0442\u043E \u043C\u0435\u043D\u044F\u0442\u044C."
+      }));
+    }
+    var age = 0;
+    try {
+      age = authAge(tg.initData, now);
+    } catch (e) {
+      age = null;
+    }
+    if (age != null && age > SESSION_NOTE_SEC) {
+      main.appendChild(el("div", {
+        class: "note",
+        role: "status",
+        text: "\u0421\u0435\u0441\u0441\u0438\u044F Telegram \u043E\u0442\u043A\u0440\u044B\u0442\u0430 \u0434\u0430\u0432\u043D\u043E. \u0415\u0441\u043B\u0438 \u043A\u043E\u043C\u0430\u043D\u0434\u0430 \u043D\u0435 \u0443\u0439\u0434\u0451\u0442, \u0437\u0430\u043A\u0440\u043E\u0439\u0442\u0435 \u043F\u0430\u043D\u0435\u043B\u044C \u0438 \u043E\u0442\u043A\u0440\u043E\u0439\u0442\u0435 \u0435\u0451 \u0441\u043D\u043E\u0432\u0430."
+      }));
+    }
+    var hero = el("div", { class: "hero" });
+    hero.appendChild(tile("VPN", (state.vpn ? "\u{1F6E1}\uFE0F " : "\u26D4 ") + (state.vpn ? vpnTitle(state) : "\u0412\u044B\u043A\u043B\u044E\u0447\u0435\u043D")));
+    hero.appendChild(tile("\u0423\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432 \u0432 \u0441\u0435\u0442\u0438", "\u{1F4F1} " + String(onlineCount(state.devices))));
+    hero.appendChild(tile("\u0420\u0430\u0431\u043E\u0442\u0430\u0435\u0442", "\u23F1 " + (state.uptime || "\u2014")));
+    hero.appendChild(tile("\u041F\u0430\u043C\u044F\u0442\u044C \xB7 \u043D\u0430\u0433\u0440\u0443\u0437\u043A\u0430", pair(state.mem, state.load)));
+    main.appendChild(hero);
+    main.appendChild(el("h2", { text: "\u0423\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435" }));
+    var controls = el("div", { class: "card" });
+    controls.appendChild(switchRow("\u{1F6E1}\uFE0F", "VPN (Podkop)", "\u0417\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0435 \u0441\u0430\u0439\u0442\u044B \u0447\u0435\u0440\u0435\u0437 VPN, \u043E\u0441\u0442\u0430\u043B\u044C\u043D\u043E\u0435 \u043D\u0430\u043F\u0440\u044F\u043C\u0443\u044E", "vpn", state.vpn, "vpn"));
+    controls.appendChild(switchRow("\u{1F465}", "\u0413\u043E\u0441\u0442\u0435\u0432\u043E\u0439 Wi\u2011Fi", "g20-guest", "guest", state.guest, "guest"));
+    controls.appendChild(el(
+      "div",
+      { class: "row" },
+      el("span", { class: "ic", "aria-hidden": "true", text: "\u{1F6AB}" }),
+      el("div", { class: "t", text: "\u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0430 \u0440\u0435\u043A\u043B\u0430\u043C\u044B" }, el("div", { class: "s", text: "AdGuard Home" })),
+      el("span", { class: "s", text: state.adguard ? "\u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442" : "\u0432\u044B\u043A\u043B\u044E\u0447\u0435\u043D\u0430" })
+    ));
+    main.appendChild(controls);
+    if (state.vpn) main.appendChild(serverSection(state));
+    var anyDev = false;
+    for (var n = 0; n < NET_ORDER.length; n++) {
+      var key = NET_ORDER[n];
+      var list = [];
+      for (var di = 0; di < state.devices.length; di++) {
+        if (state.devices[di].net === key) list.push(state.devices[di]);
+      }
+      var hidden = key === "h" ? state.hiddenHome : 0;
       if (!list.length && !hidden) continue;
-      h += "<h2>".concat(title, '<span class="badge">').concat(list.filter((d) => d[4] & 1).length, ' \u0432 \u0441\u0435\u0442\u0438</span></h2><div class="card">');
-      for (const d of list) {
-        const [nm, oct, , mac, fl, sig] = d, on = fl & 1, bl = fl & 2;
-        const macF = mac.match(/../g).join(":");
-        h += '<div class="row dev '.concat(on ? "" : "off", '" data-m="').concat(esc(mac), '"><span class="ic">').concat(nk === "h" ? "\u{1F4A1}" : nk === "g" ? "\u{1F464}" : "\u{1F4F1}", '</span>\n        <div class="t">').concat(esc(nm || "\u0411\u0435\u0437 \u0438\u043C\u0435\u043D\u0438"), " ").concat(bl ? '<span class="bl">\xB7 \u0431\u0435\u0437 \u0438\u043D\u0442\u0435\u0440\u043D\u0435\u0442\u0430</span>' : "", '<div class="s">').concat(subnet[nk]).concat(oct, " \xB7 ").concat(on ? sig ? sig + " dBm" : "\u043F\u043E \u043A\u0430\u0431\u0435\u043B\u044E" : "\u043D\u0435 \u0432 \u0441\u0435\u0442\u0438", '</div></div><span class="s">\u203A</span></div>\n        <div class="ed" id="ed-').concat(esc(mac), '"><input maxlength="24" placeholder="\u0418\u043C\u044F \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430" value="').concat(esc(nm), '" id="in-').concat(esc(mac), '">\n        <div class="s" style="flex:1 1 100%">MAC ').concat(macF, '</div>\n        <button data-act="ren" data-m="').concat(esc(mac), '">\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u0438\u043C\u044F</button>\n        <button class="').concat(bl ? "grn" : "red", '" data-act="blk" data-v="').concat(bl ? 0 : 1, '" data-m="').concat(esc(mac), '">').concat(bl ? "\u0420\u0430\u0437\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u0442\u044C" : "\u0411\u043B\u043E\u043A \u0438\u043D\u0442\u0435\u0440\u043D\u0435\u0442\u0430", "</button></div>");
-      }
-      if (hidden) h += '<div class="row"><span class="ic">\u{1F4A1}</span><div class="t">\u0415\u0449\u0451 '.concat(hidden, ' \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432 \u0443\u043C\u043D\u043E\u0433\u043E \u0434\u043E\u043C\u0430<div class="s">\u0441\u043A\u0440\u044B\u0442\u043E, \u0447\u0442\u043E\u0431\u044B \u0441\u0441\u044B\u043B\u043A\u0430 \u0432\u043B\u0435\u0437\u043B\u0430</div></div></div>');
-      h += "</div>";
+      anyDev = true;
+      main.appendChild(netSection(key, list, hidden));
     }
-    if (S.co) h += '<div class="foot">\u041D\u0435 \u0432 \u0441\u0435\u0442\u0438 \u0438 \u0441\u043A\u0440\u044B\u0442\u043E: '.concat(S.co, "</div>");
-    h += '<h2>\u0421\u0435\u0442\u044C</h2><div class="card">\n    <div class="row"><span class="ic">\u{1F310}</span><div class="t">\u0412\u043D\u0435\u0448\u043D\u0438\u0439 IP<div class="s">WAN '.concat(esc(S.w), '</div></div><span class="s">').concat(esc(S.e), "</span></div></div>");
-    h += '<h2>\u0414\u0435\u0439\u0441\u0442\u0432\u0438\u044F</h2><button class="btn" id="speed">\u{1F4F6} \u0422\u0435\u0441\u0442 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438</button><button class="btn" id="report">\u{1F4CB} \u041E\u0442\u0447\u0451\u0442 \u0437\u0430 \u0441\u0443\u0442\u043A\u0438</button><button class="btn" id="refresh">\u{1F504} \u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C \u0434\u0430\u043D\u043D\u044B\u0435</button><button class="btn red" id="reboot">\u23FB \u041F\u0435\u0440\u0435\u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u0440\u043E\u0443\u0442\u0435\u0440</button>';
-    h += '<div class="foot">\u0414\u0430\u043D\u043D\u044B\u0435: '.concat(agoTxt, " \xB7 \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u044F \u043F\u0440\u0438\u043C\u0435\u043D\u044F\u0435\u0442 \u0431\u043E\u0442 \xB7 ").concat(PANEL_VER, "</div>");
-    app.innerHTML = h;
-    document.getElementById("vpn").onchange = (e) => {
-      hap();
-      e.target.checked ? send({ a: "vpn", v: 1 }) : confirmDo("\u0412\u044B\u043A\u043B\u044E\u0447\u0438\u0442\u044C VPN? \u0417\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0435 \u0441\u0430\u0439\u0442\u044B \u043F\u0435\u0440\u0435\u0441\u0442\u0430\u043D\u0443\u0442 \u043E\u0442\u043A\u0440\u044B\u0432\u0430\u0442\u044C\u0441\u044F.", { a: "vpn", v: 0 }) || (e.target.checked = true);
-    };
-    document.getElementById("guest").onchange = (e) => {
-      hap();
-      send({ a: "guest", v: e.target.checked ? 1 : 0 });
-    };
-    document.getElementById("refresh").onclick = () => {
-      hap();
-      send({ a: "refresh" });
-    };
-    document.getElementById("speed").onclick = () => {
-      hap();
+    if (!anyDev) {
+      main.appendChild(el("h2", { text: "\u0423\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430" }));
+      main.appendChild(el(
+        "div",
+        { class: "card" },
+        el("div", { class: "row" }, el("div", { class: "t" }, el("div", { class: "s wrap", text: "\u0412 \u0441\u043F\u0438\u0441\u043A\u0435 \u043D\u0438\u043A\u043E\u0433\u043E \u043D\u0435\u0442. \u041E\u0431\u043D\u043E\u0432\u0438\u0442\u0435 \u0434\u0430\u043D\u043D\u044B\u0435, \u0435\u0441\u043B\u0438 \u044D\u0442\u043E \u043D\u0435\u043E\u0436\u0438\u0434\u0430\u043D\u043D\u043E." })))
+      ));
+    }
+    if (state.skipped) {
+      main.appendChild(el("div", { class: "foot", text: "\u0427\u0430\u0441\u0442\u044C \u0437\u0430\u043F\u0438\u0441\u0435\u0439 \u043E\u0431 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430\u0445 \u043F\u0440\u043E\u043F\u0443\u0449\u0435\u043D\u0430 \u2014 \u043E\u0431\u043D\u043E\u0432\u0438\u0442\u0435 \u0434\u0430\u043D\u043D\u044B\u0435." }));
+    }
+    if (state.hiddenOffline) {
+      main.appendChild(el("div", { class: "foot", text: "\u041D\u0435 \u0432 \u0441\u0435\u0442\u0438 \u0438 \u0441\u043A\u0440\u044B\u0442\u043E: " + String(state.hiddenOffline) }));
+    }
+    main.appendChild(el("h2", { text: "\u0421\u0435\u0442\u044C" }));
+    main.appendChild(el(
+      "div",
+      { class: "card" },
+      el(
+        "div",
+        { class: "row" },
+        el("span", { class: "ic", "aria-hidden": "true", text: "\u{1F310}" }),
+        el("div", { class: "t", text: "\u0412\u043D\u0435\u0448\u043D\u0438\u0439 IP" }, el("div", { class: "s", text: "WAN " + (state.wan || "\u043D\u0435\u0442 \u0434\u0430\u043D\u043D\u044B\u0445") })),
+        el("span", { class: "s", text: state.wanExtra || "" })
+      )
+    ));
+    main.appendChild(el("h2", { text: "\u0414\u0435\u0439\u0441\u0442\u0432\u0438\u044F" }));
+    main.appendChild(actionButton("speed", "\u{1F4F6} \u0422\u0435\u0441\u0442 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438", function() {
+      hapSel();
       send({ a: "speed" });
-    };
-    document.getElementById("report").onclick = () => {
-      hap();
+    }));
+    main.appendChild(actionButton("report", "\u{1F4CB} \u041E\u0442\u0447\u0451\u0442 \u0437\u0430 \u0441\u0443\u0442\u043A\u0438", function() {
+      hapSel();
       send({ a: "report" });
-    };
-    document.querySelectorAll(".dev").forEach((el) => el.onclick = () => {
-      hap();
-      const e = document.getElementById("ed-" + el.dataset.m);
-      e && e.classList.toggle("open");
+    }));
+    main.appendChild(actionButton("refresh", "\u{1F504} \u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C \u0434\u0430\u043D\u043D\u044B\u0435", function() {
+      hapSel();
+      send({ a: "refresh" });
+    }));
+    var reboot = actionButton("reboot", "\u23FB \u041F\u0435\u0440\u0435\u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u0440\u043E\u0443\u0442\u0435\u0440", function() {
+      confirmDo("\u041F\u0435\u0440\u0435\u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u0440\u043E\u0443\u0442\u0435\u0440? \u0418\u043D\u0442\u0435\u0440\u043D\u0435\u0442 \u043F\u0440\u043E\u043F\u0430\u0434\u0451\u0442 \u043F\u0440\u0438\u043C\u0435\u0440\u043D\u043E \u043D\u0430 2 \u043C\u0438\u043D\u0443\u0442\u044B.", function() {
+        send({ a: "reboot" });
+      });
     });
-    document.querySelectorAll(".ed button").forEach((b) => b.onclick = (ev) => {
-      ev.stopPropagation();
-      const m = b.dataset.m;
-      if (b.dataset.act === "ren") {
-        const n = (document.getElementById("in-" + m).value || "").trim().slice(0, 24);
-        send({ a: "ren", m, n });
+    reboot.classList.add("red");
+    main.appendChild(reboot);
+    var shortIp = false;
+    for (var si = 0; si < state.devices.length; si++) {
+      if (state.devices[si].ip && state.devices[si].ip.charAt(0) === ".") shortIp = true;
+    }
+    var foot = "\u0414\u0430\u043D\u043D\u044B\u0435: " + agoText(state.ts, now) + " \xB7 \u043A\u043E\u043C\u0430\u043D\u0434\u044B \u0432\u044B\u043F\u043E\u043B\u043D\u044F\u0435\u0442 \u0431\u043E\u0442 \xB7 " + PANEL_VER;
+    if (shortIp) foot += " \xB7 \u0430\u0434\u0440\u0435\u0441\u0430 \u2014 \u043F\u043E \u043E\u043A\u043E\u043D\u0447\u0430\u043D\u0438\u044E";
+    main.appendChild(el("div", { class: "foot", text: foot }));
+    app.appendChild(main);
+    try {
+      tg.BackButton.onClick(function() {
+        if (!stack.length) {
+          syncBack();
+          return;
+        }
+        var mac = stack.pop();
+        setEditor(mac, false);
+        syncBack();
+        hapSel();
+      });
+    } catch (e) {
+    }
+    function tile(k, v) {
+      return el("div", { class: "tile" }, el("div", { class: "k", text: k }), el("div", { class: "v", text: v }));
+    }
+    function pair(a, b) {
+      if (!a && !b) return "\u2014";
+      if (!a) return b;
+      if (!b) return a;
+      return a + " \xB7 " + b;
+    }
+    function switchRow(icon, title, sub, id, checked, action) {
+      var input = el("input", { type: "checkbox", id });
+      if (checked) input.checked = true;
+      input.addEventListener("change", function() {
+        if (ctl.busy || pendingConfirm) {
+          input.checked = !input.checked;
+          return;
+        }
+        var on = input.checked;
+        if (on) {
+          hapSel();
+          send({ a: action, v: 1 }, function() {
+            input.checked = false;
+          });
+          return;
+        }
+        input.checked = true;
+        var text = action === "vpn" ? "\u0412\u044B\u043A\u043B\u044E\u0447\u0438\u0442\u044C VPN? \u0417\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0435 \u0441\u0430\u0439\u0442\u044B \u043F\u0435\u0440\u0435\u0441\u0442\u0430\u043D\u0443\u0442 \u043E\u0442\u043A\u0440\u044B\u0432\u0430\u0442\u044C\u0441\u044F." : "\u0412\u044B\u043A\u043B\u044E\u0447\u0438\u0442\u044C \u0433\u043E\u0441\u0442\u0435\u0432\u043E\u0439 Wi\u2011Fi? \u0413\u043E\u0441\u0442\u0438 \u043E\u0442\u043A\u043B\u044E\u0447\u0430\u0442\u0441\u044F \u043E\u0442 \u0441\u0435\u0442\u0438.";
+        confirmDo(text, function() {
+          input.checked = false;
+          send({ a: action, v: 0 }, function() {
+            input.checked = true;
+          });
+        });
+      });
+      var sw = el("span", { class: "sw" }, input, el("span", { "aria-hidden": "true" }));
+      return el(
+        "label",
+        { class: "row" },
+        el("span", { class: "ic", "aria-hidden": "true", text: icon }),
+        el("div", { class: "t", text: title }, el("div", { class: "s wrap", text: sub })),
+        sw
+      );
+    }
+    function serverSection(s) {
+      var wrap = el("div");
+      wrap.appendChild(el("h2", { text: "\u0421\u0435\u0440\u0432\u0435\u0440 VPN" }));
+      var card = el("div", { class: "card", role: "group", "aria-label": "\u0421\u0435\u0440\u0432\u0435\u0440 VPN" });
+      if (!s.nodes.length) {
+        card.appendChild(el("div", { class: "row" }, el("div", { class: "t" }, el("div", { class: "s wrap", text: "\u0421\u043F\u0438\u0441\u043E\u043A \u0441\u0435\u0440\u0432\u0435\u0440\u043E\u0432 \u043F\u0443\u0441\u0442. \u041E\u0431\u043D\u043E\u0432\u0438\u0442\u0435 \u0434\u0430\u043D\u043D\u044B\u0435." }))));
       } else {
-        const v = +b.dataset.v;
-        v ? confirmDo("\u041E\u0442\u043A\u043B\u044E\u0447\u0438\u0442\u044C \u0438\u043D\u0442\u0435\u0440\u043D\u0435\u0442 \u044D\u0442\u043E\u043C\u0443 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0443? \u041B\u043E\u043A\u0430\u043B\u044C\u043D\u0430\u044F \u0441\u0435\u0442\u044C \u043E\u0441\u0442\u0430\u043D\u0435\u0442\u0441\u044F.", { a: "blk", m, v }) : send({ a: "blk", m, v });
+        var autoNode = findNode(s, s.auto);
+        var ap = autoNode ? autoNode.ping : 0;
+        var autoLabel = autoNode ? nodeLabel(autoNode.cc).join(" ") : "\u0432\u044B\u0431\u0438\u0440\u0430\u0435\u0442\u0441\u044F";
+        card.appendChild(serverRow("AUTO", "\u26A1", "\u0410\u0432\u0442\u043E (\u043B\u0443\u0447\u0448\u0438\u0439)", "\u0441\u0435\u0439\u0447\u0430\u0441: " + autoLabel, ap, s.sel === "AUTO", false));
+        for (var i = 0; i < s.nodes.length; i++) {
+          var node = s.nodes[i];
+          var label = nodeLabel(node.cc);
+          card.appendChild(serverRow(node.tag, label[0], label[1], "", node.ping, s.sel === node.tag, node.ping <= 0));
+        }
       }
-    });
-    document.getElementById("reboot").onclick = () => confirmDo("\u041F\u0435\u0440\u0435\u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u0440\u043E\u0443\u0442\u0435\u0440? \u0418\u043D\u0442\u0435\u0440\u043D\u0435\u0442 \u043F\u0440\u043E\u043F\u0430\u0434\u0451\u0442 \u043F\u0440\u0438\u043C\u0435\u0440\u043D\u043E \u043D\u0430 2 \u043C\u0438\u043D\u0443\u0442\u044B.", { a: "reboot" });
-    document.querySelectorAll(".srv").forEach((el) => el.onclick = () => {
-      hap();
-      const t = el.dataset.t;
-      if (t === "AUTO" && S.sel === "AUTO" || t === S.sel) return;
-      send({ a: "sel", t });
+      wrap.appendChild(card);
+      return wrap;
+    }
+    function serverRow(tag, icon, title, sub, ping, on, dead) {
+      var cls = "row srv" + (on ? " on" : "") + (dead ? " dead" : "");
+      var pingText = ping > 0 ? ping + " \u043C\u0441" : tag === "AUTO" ? "" : "\u043D\u0435\u0442 \u0441\u0432\u044F\u0437\u0438";
+      var row = el(
+        "div",
+        {
+          class: cls,
+          role: "button",
+          tabindex: "0",
+          "aria-pressed": on ? "true" : "false",
+          "data-t": tag
+        },
+        el("span", { class: "chk", "aria-hidden": "true", text: on ? "\u2713" : "" }),
+        el("span", { class: "ic", "aria-hidden": "true", text: icon }),
+        el("div", { class: "t", text: title }, sub ? el("div", { class: "s", text: sub }) : null),
+        el("span", { class: "ping " + pingClass(ping), text: pingText })
+      );
+      if (on) row.appendChild(el("span", { class: "sr", text: "\u0432\u044B\u0431\u0440\u0430\u043D" }));
+      bindPress(row, function() {
+        if (ctl.busy || pendingConfirm) return;
+        if (tag === state.sel) return;
+        var go = function() {
+          send({ a: "sel", t: tag });
+        };
+        if (dead) confirmDo("\u0421 \u044D\u0442\u0438\u043C \u0441\u0435\u0440\u0432\u0435\u0440\u043E\u043C \u043D\u0435\u0442 \u0441\u0432\u044F\u0437\u0438. \u0412\u0441\u0451 \u0440\u0430\u0432\u043D\u043E \u043F\u0435\u0440\u0435\u043A\u043B\u044E\u0447\u0438\u0442\u044C?", go);
+        else {
+          hapSel();
+          go();
+        }
+      });
+      return row;
+    }
+    function netSection(key2, list2, hidden2) {
+      var meta = NET_META[key2];
+      var online = 0;
+      for (var i = 0; i < list2.length; i++) if (list2[i].online) online++;
+      var wrap = el("div");
+      var heading = el("h2", { text: meta.icon + " " + meta.title });
+      heading.appendChild(el("span", { class: "badge", text: online + " \u0432 \u0441\u0435\u0442\u0438" }));
+      wrap.appendChild(heading);
+      var card = el("div", { class: "card" });
+      for (var j = 0; j < list2.length; j++) card.appendChild(deviceBlock(list2[j], meta.dev));
+      if (hidden2) {
+        card.appendChild(el(
+          "div",
+          { class: "row" },
+          el("span", { class: "ic", "aria-hidden": "true", text: "\u{1F4A1}" }),
+          el("div", { class: "t", text: hiddenHomeText(hidden2) }, el("div", { class: "s", text: "\u043D\u0435 \u043F\u043E\u043C\u0435\u0441\u0442\u0438\u043B\u0438\u0441\u044C \u0432 \u0441\u0441\u044B\u043B\u043A\u0443" }))
+        ));
+      }
+      wrap.appendChild(card);
+      return wrap;
+    }
+    function deviceBlock(d, icon) {
+      var frag = document.createDocumentFragment();
+      var title = el("div", { class: "t" });
+      title.appendChild(document.createTextNode(d.name || "\u0411\u0435\u0437 \u0438\u043C\u0435\u043D\u0438"));
+      if (d.blocked) title.appendChild(el("span", { class: "bl", text: " \xB7 \u0431\u0435\u0437 \u0438\u043D\u0442\u0435\u0440\u043D\u0435\u0442\u0430" }));
+      title.appendChild(el("div", { class: "s", text: deviceLine(d) }));
+      var row = el(
+        "div",
+        { class: "row dev" + (d.online ? "" : " off") + (d.manageable ? "" : " static") },
+        el("span", { class: "ic", "aria-hidden": "true", text: icon }),
+        title,
+        d.manageable ? el("span", { class: "s", "aria-hidden": "true", text: "\u203A" }) : null
+      );
+      frag.appendChild(row);
+      if (!d.manageable) return frag;
+      row.setAttribute("role", "button");
+      row.tabIndex = 0;
+      row.setAttribute("aria-expanded", "false");
+      row.setAttribute("data-m", d.mac);
+      var ed = el("div", { class: "ed", id: "ed-" + d.mac });
+      var input = el("input", {
+        id: "in-" + d.mac,
+        maxlength: "24",
+        placeholder: "\u0418\u043C\u044F \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430",
+        "aria-label": "\u0418\u043C\u044F \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430",
+        enterkeyhint: "done",
+        autocomplete: "off",
+        spellcheck: "false"
+      });
+      input.value = d.name || "";
+      var original = d.name || "";
+      input.addEventListener("input", syncDirty);
+      input.addEventListener("focus", function() {
+        setTimeout(function() {
+          try {
+            input.scrollIntoView({ block: "center" });
+          } catch (e) {
+          }
+        }, 280);
+      });
+      var save = el("button", { type: "button", text: "\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u0438\u043C\u044F" });
+      save.addEventListener("click", function(ev) {
+        ev.stopPropagation();
+        if (ctl.busy || pendingConfirm) return;
+        var name = cleanName(input.value);
+        if (!name) {
+          toast("\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0438\u043C\u044F \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430.");
+          hapNote("error");
+          return;
+        }
+        if (name === original) {
+          toast("\u0418\u043C\u044F \u043D\u0435 \u0438\u0437\u043C\u0435\u043D\u0438\u043B\u043E\u0441\u044C.");
+          return;
+        }
+        hapSel();
+        send({ a: "ren", m: d.mac, n: name });
+      });
+      var block = el("button", {
+        type: "button",
+        class: d.blocked ? "grn" : "red",
+        text: d.blocked ? "\u0412\u0435\u0440\u043D\u0443\u0442\u044C \u0438\u043D\u0442\u0435\u0440\u043D\u0435\u0442" : "\u041E\u0442\u043A\u043B\u044E\u0447\u0438\u0442\u044C \u0438\u043D\u0442\u0435\u0440\u043D\u0435\u0442"
+      });
+      block.addEventListener("click", function(ev) {
+        ev.stopPropagation();
+        if (ctl.busy || pendingConfirm) return;
+        if (d.blocked) {
+          hapSel();
+          send({ a: "blk", m: d.mac, v: 0 });
+        } else {
+          confirmDo("\u041E\u0442\u043A\u043B\u044E\u0447\u0438\u0442\u044C \u0438\u043D\u0442\u0435\u0440\u043D\u0435\u0442 \u044D\u0442\u043E\u043C\u0443 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0443? \u041B\u043E\u043A\u0430\u043B\u044C\u043D\u0430\u044F \u0441\u0435\u0442\u044C \u043E\u0441\u0442\u0430\u043D\u0435\u0442\u0441\u044F.", function() {
+            send({ a: "blk", m: d.mac, v: 1 });
+          });
+        }
+      });
+      ed.appendChild(input);
+      ed.appendChild(el("div", { class: "s", text: "MAC " + formatMac(d.mac) }));
+      if (!d.mac) ed.appendChild(el("div", { class: "s", text: "\u0423\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u2014 \u043D\u0435\u0442 \u0430\u0434\u0440\u0435\u0441\u0430 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430." }));
+      ed.appendChild(save);
+      ed.appendChild(block);
+      row.setAttribute("aria-controls", "ed-" + d.mac);
+      bindPress(row, function() {
+        toggleEditor(d.mac);
+      });
+      frag.appendChild(ed);
+      return frag;
+    }
+    function toggleEditor(mac) {
+      var ed = document.getElementById("ed-" + mac);
+      if (!ed) return;
+      var open = !ed.classList.contains("open");
+      setEditor(mac, open);
+      var idx = stack.indexOf(mac);
+      if (idx >= 0) stack.splice(idx, 1);
+      if (open) stack.push(mac);
+      syncBack();
+      hapSel();
+    }
+    function setEditor(mac, open) {
+      var ed = document.getElementById("ed-" + mac);
+      var row = null;
+      var rows = app.querySelectorAll(".dev");
+      for (var i = 0; i < rows.length; i++) {
+        if (rows[i].getAttribute("data-m") === mac) row = rows[i];
+      }
+      if (ed) {
+        if (open) ed.classList.add("open");
+        else ed.classList.remove("open");
+      }
+      if (row) row.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    function syncBack() {
+      try {
+        if (stack.length) tg.BackButton.show();
+        else tg.BackButton.hide();
+      } catch (e) {
+      }
+      syncDirty();
+    }
+    function syncDirty() {
+      var dirty = false;
+      var inputs = app.querySelectorAll(".ed input");
+      for (var i = 0; i < inputs.length; i++) {
+        var id = inputs[i].id.replace(/^in-/, "");
+        var dev = null;
+        for (var j = 0; j < state.devices.length; j++) if (state.devices[j].mac === id) dev = state.devices[j];
+        if (dev && cleanName(inputs[i].value) !== (dev.name || "") && cleanName(inputs[i].value) !== "") dirty = true;
+      }
+      try {
+        if (dirty) tg.enableClosingConfirmation();
+        else tg.disableClosingConfirmation();
+      } catch (e) {
+      }
+    }
+    function actionButton(id, label, onClick) {
+      var btn = el("button", { class: "btn", type: "button", id, text: label });
+      btn.addEventListener("click", function() {
+        if (ctl.busy || pendingConfirm) return;
+        onClick();
+      });
+      return btn;
+    }
+    function confirmDo(text, onYes) {
+      if (ctl.busy || pendingConfirm) return;
+      pendingConfirm = true;
+      hapNote("warning");
+      var settled = false;
+      function finish() {
+        if (settled) return;
+        settled = true;
+        pendingConfirm = false;
+      }
+      var ask = tg && tg.showConfirm;
+      var canPopup = false;
+      try {
+        canPopup = !tg.isVersionAtLeast || tg.isVersionAtLeast("6.2");
+      } catch (e) {
+        canPopup = true;
+      }
+      if (ask && canPopup) {
+        try {
+          ask.call(tg, text, function(ok2) {
+            finish();
+            if (ok2) onYes();
+          });
+          setTimeout(finish, 6e4);
+          return;
+        } catch (e2) {
+        }
+      }
+      var ok = false;
+      try {
+        ok = window.confirm(text);
+      } catch (e3) {
+        ok = false;
+      }
+      finish();
+      if (ok) onYes();
+    }
+  }
+  function bridgeLikely() {
+    try {
+      if (window.TelegramWebviewProxy !== void 0) return true;
+      if (window.external && "notify" in window.external) return true;
+      if (window.parent && window.parent !== window) return true;
+    } catch (e) {
+      return true;
+    }
+    return false;
+  }
+  function toast(text) {
+    var node = document.getElementById("toast");
+    if (!node) return;
+    node.textContent = text;
+    node.className = "toast show";
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function() {
+      node.className = "toast";
+    }, 6e3);
+  }
+  function hapSel() {
+    var tg = window.Telegram && window.Telegram.WebApp;
+    try {
+      tg && tg.HapticFeedback && tg.HapticFeedback.selectionChanged();
+    } catch (e) {
+    }
+  }
+  function hapNote(type) {
+    var tg = window.Telegram && window.Telegram.WebApp;
+    try {
+      tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred(type);
+    } catch (e) {
+    }
+  }
+  function bindPress(node, fn) {
+    node.addEventListener("click", fn);
+    node.addEventListener("keydown", function(ev) {
+      if (ev.key === "Enter" || ev.key === " ") {
+        ev.preventDefault();
+        fn();
+      }
     });
   }
-  render();
-}
-try {
-  boot();
-} catch (e) {
-  showFatal((e && e.message) + (e && e.stack ? " | " + String(e.stack).slice(0, 300) : ""));
-}
+  if (typeof document !== "undefined" && document.getElementById("app")) {
+    try {
+      boot();
+    } catch (e) {
+      console.error(e);
+      showFatal();
+    }
+  }
+})();
+
 </script>
 </body>
 </html>

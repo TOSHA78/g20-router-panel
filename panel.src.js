@@ -1,125 +1,713 @@
-function showFatal(msg){ try { var a=document.getElementById("app"); a.innerHTML='<div class="err"><div style="font-size:40px">⚠️</div><p><b>Ошибка панели</b></p><p style="font-size:12px;word-break:break-word">'+String(msg).replace(/[<>&]/g,"")+'</p><p>Отправьте боту /panel</p></div>'; } catch(e){} }
-window.onerror = function(m, src, line, col){ showFatal(m+" @"+line+":"+col); return true; };
-function boot(){
+import {
+  SESSION_NOTE_SEC,
+  agoText,
+  authAge,
+  cleanName,
+  deviceLine,
+  findNode,
+  formatMac,
+  hiddenHomeText,
+  isInsideTelegram,
+  isStale,
+  loadState,
+  nodeLabel,
+  onlineCount,
+  pingClass,
+  validateAction,
+  vpnTitle,
+  NET_ORDER
+} from "./logic.mjs";
 
-const PANEL_VER = "v5 · 17.10 13:50";
-const tg = window.Telegram && Telegram.WebApp; if (tg) { tg.ready(); tg.expand(); }
-const NODES = {auto:["🇪🇺","Автовыбор провайдера"],pl:["🇵🇱","Польша"],gb:["🇬🇧","Англия"],nl:["🇳🇱","Нидерланды"],ru:["🇷🇺","Санкт-Петербург"],nskru:["🇷🇺","Новосибирск"],fr:["🇫🇷","Франция"],ee:["🇪🇪","Эстония"],se:["🇸🇪","Швеция"],de:["🇩🇪","Германия"],nyus:["🇺🇸","США"],by:["🇧🇾","Беларусь"],kz:["🇰🇿","Казахстан"],am:["🇦🇲","Армения"],mx:["🇲🇽","Мексика"],bg:["🇧🇬","Болгария"],cz:["🇨🇿","Чехия"],sg:["🇸🇬","Сингапур"],"br-rul":["📶","Обход БС #12"],"br-rub":["📶","Обход БС #13"],"rev-ru":["🇷🇺","Из-за рубежа"],"tg-nl":["✈️","Сервер для TG"]};
-const BANDS = {l2:"g20 · 2.4", l5:"g20 · 5", g:"Гости", h:"Умный дом"};
-const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-function b64json(h) {
-  try { h = decodeURIComponent(h).replace(/-/g,"+").replace(/_/g,"/").replace(/\s/g,""); while (h.length % 4) h += "=";
-    const bin = atob(h); let txt;
-    try { txt = new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0))); } catch (e2) { txt = decodeURIComponent(escape(bin)); }
-    const o = JSON.parse(txt);
-    return (o && typeof o === "object" && "ts" in o) ? o : null; } catch (e) { return null; }
+var PANEL_VER = "v6 · 24.11";
+var NET_META = {
+  m: { icon: "🏠", title: "Основная сеть · g20", dev: "📱" },
+  g: { icon: "👥", title: "Гостевая · g20-guest", dev: "👤" },
+  h: { icon: "💡", title: "Умный дом · g20-home", dev: "💡" }
+};
+
+function showFatal() {
+  var app = document.getElementById("app");
+  if (!app) return;
+  while (app.firstChild) app.removeChild(app.firstChild);
+  var box = document.createElement("div");
+  box.className = "err";
+  box.setAttribute("role", "alert");
+  var icon = document.createElement("div");
+  icon.className = "icon";
+  icon.textContent = "⚠️";
+  var title = document.createElement("p");
+  var b = document.createElement("b");
+  b.textContent = "Панель не открылась";
+  title.appendChild(b);
+  var text = document.createElement("p");
+  text.textContent = "Закройте окно и отправьте боту /panel. Если не поможет — проверьте интернет и откройте снова.";
+  box.appendChild(icon);
+  box.appendChild(title);
+  box.appendChild(text);
+  app.appendChild(box);
 }
-function decode() {
-  const cands = [];
-  try { const q = new URLSearchParams(location.search); if (q.get("s")) cands.push(q.get("s")); } catch (e) {}
-  try { const h = location.hash.slice(1);
-    if (h) { const hp = new URLSearchParams(h); if (hp.get("s")) cands.push(hp.get("s")); else if (!/^tgWebApp/.test(h)) cands.push(h); } } catch (e) {}
-  try { const sp = tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param; if (sp) cands.push(sp); } catch (e) {}
-  for (const c of cands) { const o = b64json(c); if (o) return o; }
-  return null;
+
+window.onerror = function () {
+  var app = document.getElementById("app");
+  if (app && app.getAttribute("data-booted") !== "1") {
+    showFatal();
+    return true;
+  }
+  return false;
+};
+
+function el(tag, attrs) {
+  var node = document.createElement(tag);
+  if (attrs) {
+    for (var k in attrs) {
+      if (!Object.prototype.hasOwnProperty.call(attrs, k) || attrs[k] == null || attrs[k] === false) continue;
+      if (k === "class") node.className = attrs[k];
+      else if (k === "text") node.textContent = attrs[k];
+      else node.setAttribute(k, String(attrs[k]));
+    }
+  }
+  for (var i = 2; i < arguments.length; i++) {
+    var child = arguments[i];
+    if (child == null || child === false) continue;
+    node.appendChild(typeof child === "string" ? document.createTextNode(child) : child);
+  }
+  return node;
 }
-const S = decode();
-const hap = (t="light") => { try { tg.HapticFeedback.impactOccurred(t); } catch(e){} };
-const okHap = () => { try { tg.HapticFeedback.notificationOccurred("success"); } catch(e){} };
-function send(obj) {
-  if (!tg || !tg.sendData) { alert(JSON.stringify(obj)); return; }
-  okHap(); tg.sendData(JSON.stringify(obj));  // closes the Mini App; bot replies in chat
+
+function hexToRgba(hex, alpha) {
+  var h = String(hex || "").replace("#", "");
+  if (h.length === 3) h = h.charAt(0) + h.charAt(0) + h.charAt(1) + h.charAt(1) + h.charAt(2) + h.charAt(2);
+  if (!/^[0-9a-fA-F]{6}$/.test(h)) return "rgba(36,129,204," + alpha + ")";
+  var n = parseInt(h, 16);
+  return "rgba(" + ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," + (n & 255) + "," + alpha + ")";
 }
-function confirmDo(text, obj) { hap("medium"); if (tg && tg.showConfirm) tg.showConfirm(text, ok => ok && send(obj)); else if (confirm(text)) send(obj); }
-const nodeLabel = cc => NODES[cc] || ["🌐", cc || "?"];
-function devOnline(){ return (S.c||[]).filter(d => Array.isArray(d) && d.length>=5 ? (d[4]&1) : true).length; }
-function pingCls(p){ return p<=0 ? "bad" : p<220 ? "ok" : p<400 ? "mid" : "bad"; }
-function render() {
-  const app = document.getElementById("app");
-  if (!S) {
-    app.innerHTML = `<div class="err"><div style="font-size:44px">🛜</div><p><b>Нет свежих данных о роутере</b></p>
-      <p>Нажмите «Обновить данные» — бот пришлёт новую кнопку «Роутер». Если не сработало, закройте окно и нажмите кнопку «Роутер» внизу чата (или отправьте боту /panel).</p></div>
-      <button class="btn" id="refresh">🔄 Обновить данные</button><div class="foot">${PANEL_VER}</div>`;
-    document.getElementById("refresh").onclick = () => { hap();
-      try { if (tg && tg.sendData && tg.initData === "") { tg.sendData(JSON.stringify({a:"refresh"})); return; } } catch (e) {}
-      try { tg.sendData(JSON.stringify({a:"refresh"})); } catch (e) {
-        if (tg && tg.showAlert) tg.showAlert("Закройте окно и нажмите кнопку «Роутер» под полем ввода или отправьте /panel."); } };
+
+function boot() {
+  if (window.__g20timer) clearTimeout(window.__g20timer);
+  var app = document.getElementById("app");
+  if (!app) return;
+  app.setAttribute("data-booted", "1");
+  var tg = window.Telegram && window.Telegram.WebApp;
+  var ctl = { busy: false };
+  function send(obj, onFail) {
+    if (ctl.busy) return;
+    var problem = validateAction(obj);
+    if (problem) {
+      toast(problem);
+      hapNote("error");
+      if (onFail) onFail();
+      return;
+    }
+    var payload;
+    try { payload = JSON.stringify(obj); } catch (e) {
+      toast("Некорректная команда.");
+      hapNote("error");
+      if (onFail) onFail();
+      return;
+    }
+    if (!insideTelegram() || !tg || !tg.sendData) {
+      toast("Откройте панель в Telegram кнопкой «Роутер».");
+      hapNote("error");
+      if (onFail) onFail();
+      return;
+    }
+    ctl.busy = true;
+    app.setAttribute("aria-busy", "true");
+    toast("Отправляю боту…");
+    var bridged = bridgeLikely();
+    try {
+      tg.sendData(payload);
+    } catch (e2) {
+      ctl.busy = false;
+      app.removeAttribute("aria-busy");
+      console.error(e2);
+      toast("Не получилось отправить команду. Закройте окно и откройте панель кнопкой «Роутер».");
+      hapNote("error");
+      if (onFail) onFail();
+      return;
+    }
+    if (!bridged) {
+      ctl.busy = false;
+      app.removeAttribute("aria-busy");
+      hapNote("warning");
+      toast("Telegram не подтвердил отправку. Закройте окно и нажмите «Роутер» внизу чата.");
+      if (onFail) onFail();
+      return;
+    }
+    hapNote("success");
+    setTimeout(function () {
+      toast("Команда ушла боту. Если ответа нет — закройте окно и нажмите «Роутер» внизу чата.");
+    }, 1200);
+  }
+  function insideTelegram() {
+    return isInsideTelegram(tg, Math.round(Date.now() / 1000));
+  }
+  var now = Math.round(Date.now() / 1000);
+  var inside = isInsideTelegram(tg, now);
+
+  function applyChrome() {
+    if (!tg) return;
+    var scheme = "light";
+    try {
+      scheme = tg.colorScheme === "dark" ? "dark" : "light";
+    } catch (e) {}
+    document.documentElement.style.colorScheme = scheme;
+    var accent = "#2481cc";
+    var pageBg = scheme === "dark" ? "#1c1c1d" : "#f2f2f7";
+    try {
+      if (tg.themeParams && tg.themeParams.button_color) accent = tg.themeParams.button_color;
+      if (tg.themeParams && tg.themeParams.secondary_bg_color) pageBg = tg.themeParams.secondary_bg_color;
+    } catch (e2) {}
+    document.documentElement.style.setProperty("--acc-soft", hexToRgba(accent, ".12"));
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", pageBg);
+    try { tg.setHeaderColor("secondary_bg_color"); } catch (e3) {}
+    try { tg.setBackgroundColor("secondary_bg_color"); } catch (e4) {}
+    try {
+      if (!tg.isVersionAtLeast || tg.isVersionAtLeast("7.10")) tg.setBottomBarColor("secondary_bg_color");
+    } catch (e5) {}
+  }
+
+  if (tg) {
+    try { tg.ready(); } catch (e) {}
+    try { tg.expand(); } catch (e2) {}
+    try {
+      if (!tg.isVersionAtLeast || tg.isVersionAtLeast("7.7")) tg.disableVerticalSwipes();
+    } catch (e3) {}
+    applyChrome();
+    try { tg.onEvent("themeChanged", applyChrome); } catch (e4) {}
+    setTimeout(function () {
+      try { tg.expand(); } catch (e5) {}
+    }, 80);
+  }
+
+  if (window.__tgFailed || (inside && !tg)) {
+    renderMessage(app, {
+      icon: "⚠️",
+      title: "Не удалось загрузить панель",
+      text: "Проверьте интернет и откройте панель ещё раз. Если открыто в Telegram — закройте окно и нажмите «Роутер».",
+      button: "Повторить",
+      onClick: function () { location.reload(); }
+    });
     return;
   }
-  const ago = Math.max(0, Math.round(Date.now()/1000 - S.ts));
-  const agoTxt = ago < 60 ? "только что" : ago < 3600 ? Math.round(ago/60)+" мин назад" : Math.round(ago/3600)+" ч назад";
-  const byTag = Object.fromEntries((S.n||[]).map(n => [n[0], n]));
-  const autoCC = byTag[S.auto] ? byTag[S.auto][1] : null;
-  let cur;
-  if (!S.vpn) cur = "Выключен";
-  else if (S.sel === "AUTO") cur = "Авто → " + nodeLabel(autoCC).join(" ");
-  else cur = nodeLabel(byTag[S.sel] ? byTag[S.sel][1] : null).join(" ");
-  let h = '';
-  h += `<div class="hero">
-    <div class="tile"><div class="k">VPN</div><div class="v">${S.vpn ? "🛡️ " + esc(cur) : "⛔ Выключен"}</div></div>
-    <div class="tile"><div class="k">Устройств в сети</div><div class="v">📱 ${devOnline()}</div></div>
-    <div class="tile"><div class="k">Работает</div><div class="v">⏱ ${esc(S.up)}</div></div>
-    <div class="tile"><div class="k">Память · нагрузка</div><div class="v">${esc(S.m)} · ${esc(S.ld)}</div></div>
-  </div>`;
-  h += `<h2>Управление</h2><div class="card">
-    <label class="row"><span class="ic">🛡️</span><div class="t">VPN (Podkop)<div class="s">Заблокированные сайты через VPN, остальное напрямую</div></div>
-      <span class="sw"><input type="checkbox" id="vpn" ${S.vpn?"checked":""}><span></span></span></label>
-    <label class="row"><span class="ic">👥</span><div class="t">Гостевой Wi‑Fi<div class="s">g20-guest</div></div>
-      <span class="sw"><input type="checkbox" id="guest" ${S.g?"checked":""}><span></span></span></label>
-    <div class="row"><span class="ic">🚫</span><div class="t">Блокировка рекламы<div class="s">AdGuard Home</div></div><span class="s">${S.a?"работает":"выключена"}</span></div>
-  </div>`;
-  if (S.vpn && S.n && S.n.length) {
-    h += `<h2>Сервер VPN</h2><div class="card">`;
-    const ap = byTag[S.auto] ? byTag[S.auto][2] : 0;
-    h += `<div class="row srv ${S.sel==="AUTO"?"on":""}" data-t="AUTO"><span class="chk">${S.sel==="AUTO"?"✓":""}</span><span class="ic">⚡</span>
-      <div class="t">Авто (лучший)<div class="s">сейчас: ${esc(nodeLabel(autoCC).join(" "))}</div></div><span class="ping ${pingCls(ap)}">${ap>0?ap+" мс":""}</span></div>`;
-    for (const [tag, cc, p] of S.n) {
-      const [fl, nm] = nodeLabel(cc), on = S.sel === tag;
-      h += `<div class="row srv ${on?"on":""} ${p>0?"":"dead"}" data-t="${esc(tag)}"><span class="chk">${on?"✓":""}</span><span class="ic">${fl}</span>
-        <div class="t">${esc(nm)}</div><span class="ping ${pingCls(p)}">${p>0?p+" мс":"нет связи"}</span></div>`;
-    }
-    h += `</div>`;
-  }
-  const NETS = [["m","🏠 Основная сеть · g20"],["g","👥 Гостевая · g20-guest"],["h","💡 Умный дом · g20-home"]];
-  const subnet = {m:"192.168.1.", g:"192.168.2.", h:"192.168.3."};
-  for (const [nk, title] of NETS) {
-    const list = (S.c||[]).filter(d => d[2] === nk);
-    const hidden = nk === "h" ? (S.hg||0) : 0;
-    if (!list.length && !hidden) continue;
-    h += `<h2>${title}<span class="badge">${list.filter(d=>d[4]&1).length} в сети</span></h2><div class="card">`;
-    for (const d of list) {
-      const [nm, oct, , mac, fl, sig] = d, on = fl & 1, bl = fl & 2;
-      const macF = mac.match(/../g).join(":");
-      h += `<div class="row dev ${on?"":"off"}" data-m="${esc(mac)}"><span class="ic">${nk==="h"?"💡":nk==="g"?"👤":"📱"}</span>
-        <div class="t">${esc(nm||"Без имени")} ${bl?'<span class="bl">· без интернета</span>':""}<div class="s">${subnet[nk]}${oct} · ${on?(sig?sig+" dBm":"по кабелю"):"не в сети"}</div></div><span class="s">›</span></div>
-        <div class="ed" id="ed-${esc(mac)}"><input maxlength="24" placeholder="Имя устройства" value="${esc(nm)}" id="in-${esc(mac)}">
-        <div class="s" style="flex:1 1 100%">MAC ${macF}</div>
-        <button data-act="ren" data-m="${esc(mac)}">Сохранить имя</button>
-        <button class="${bl?"grn":"red"}" data-act="blk" data-v="${bl?0:1}" data-m="${esc(mac)}">${bl?"Разблокировать":"Блок интернета"}</button></div>`;
-    }
-    if (hidden) h += `<div class="row"><span class="ic">💡</span><div class="t">Ещё ${hidden} устройств умного дома<div class="s">скрыто, чтобы ссылка влезла</div></div></div>`;
-    h += `</div>`;
-  }
-  if (S.co) h += `<div class="foot">Не в сети и скрыто: ${S.co}</div>`;
-  h += `<h2>Сеть</h2><div class="card">
-    <div class="row"><span class="ic">🌐</span><div class="t">Внешний IP<div class="s">WAN ${esc(S.w)}</div></div><span class="s">${esc(S.e)}</span></div></div>`;
-  h += `<h2>Действия</h2><button class="btn" id="speed">📶 Тест скорости</button><button class="btn" id="report">📋 Отчёт за сутки</button><button class="btn" id="refresh">🔄 Обновить данные</button><button class="btn red" id="reboot">⏻ Перезагрузить роутер</button>`;
-  h += `<div class="foot">Данные: ${agoTxt} · изменения применяет бот · ${PANEL_VER}</div>`;
-  app.innerHTML = h;
-  document.getElementById("vpn").onchange = e => { hap(); e.target.checked ? send({a:"vpn",v:1}) : confirmDo("Выключить VPN? Заблокированные сайты перестанут открываться.", {a:"vpn",v:0}) || (e.target.checked = true); };
-  document.getElementById("guest").onchange = e => { hap(); send({a:"guest",v:e.target.checked?1:0}); };
-  document.getElementById("refresh").onclick = () => { hap(); send({a:"refresh"}); };
-  document.getElementById("speed").onclick = () => { hap(); send({a:"speed"}); };
-  document.getElementById("report").onclick = () => { hap(); send({a:"report"}); };
-  document.querySelectorAll(".dev").forEach(el => el.onclick = () => { hap(); const e = document.getElementById("ed-"+el.dataset.m); e && e.classList.toggle("open"); });
-  document.querySelectorAll(".ed button").forEach(b => b.onclick = ev => { ev.stopPropagation(); const m = b.dataset.m;
-    if (b.dataset.act === "ren") { const n = (document.getElementById("in-"+m).value||"").trim().slice(0,24); send({a:"ren", m, n}); }
-    else { const v = +b.dataset.v; v ? confirmDo("Отключить интернет этому устройству? Локальная сеть останется.", {a:"blk", m, v}) : send({a:"blk", m, v}); } });
-  document.getElementById("reboot").onclick = () => confirmDo("Перезагрузить роутер? Интернет пропадёт примерно на 2 минуты.", {a:"reboot"});
-  document.querySelectorAll(".srv").forEach(el => el.onclick = () => { hap(); const t = el.dataset.t;
-    if ((t==="AUTO" && S.sel==="AUTO") || t===S.sel) return; send({a:"sel", t}); });
-}
-render();
 
+  var search = "";
+  var hash = "";
+  try {
+    var href = String(location.href);
+    var hi = href.indexOf("#");
+    var beforeHash = hi < 0 ? href : href.slice(0, hi);
+    hash = hi < 0 ? "" : href.slice(hi);
+    var qi = beforeHash.indexOf("?");
+    search = qi < 0 ? "" : beforeHash.slice(qi);
+  } catch (e6) {
+    search = location.search || "";
+    hash = location.hash || "";
+  }
+  try { historyReplaceStripS(); } catch (e7) {}
+
+  if (!inside) {
+    renderMessage(app, {
+      icon: "🛜",
+      title: "Панель роутера g20",
+      text: "Эта страница открывается в Telegram. В чате с ботом нажмите кнопку «Роутер» внизу или отправьте /panel."
+    });
+    return;
+  }
+
+  var startParam = "";
+  try {
+    startParam = tg.initDataUnsafe && tg.initDataUnsafe.start_param || "";
+  } catch (e8) {}
+  var loaded = loadState(search, hash, startParam && String(startParam).length >= 24 ? startParam : "");
+  if (!loaded.state) {
+    var bad = loaded.status === "bad";
+    renderMessage(app, {
+      icon: bad ? "⚠️" : "🛜",
+      title: bad ? "Данные в ссылке повреждены" : "Нет свежих данных о роутере",
+      text: bad
+        ? "Нажмите «Обновить данные» — бот пришлёт новую кнопку «Роутер». Если ничего не пришло, закройте окно и нажмите «Роутер» под полем ввода или отправьте /panel."
+        : "Нажмите «Обновить данные» — бот пришлёт новую кнопку «Роутер». Если не сработало, закройте окно и нажмите кнопку «Роутер» внизу чата или отправьте /panel.",
+      button: "🔄 Обновить данные",
+      onClick: function () { send({ a: "refresh" }); }
+    });
+    return;
+  }
+
+  renderPanel(app, tg, loaded.state, now, ctl, send);
 }
-try { boot(); } catch (e) { showFatal((e && e.message) + (e && e.stack ? " | " + String(e.stack).slice(0,300) : "")); }
+
+function historyReplaceStripS() {
+  var href = String(location.href);
+  var hash = "";
+  var hi = href.indexOf("#");
+  if (hi >= 0) {
+    hash = href.slice(hi);
+    href = href.slice(0, hi);
+  }
+  var qi = href.indexOf("?");
+  if (qi < 0) return;
+  var path = href.slice(0, qi);
+  var parts = href.slice(qi + 1).split("&");
+  var kept = [];
+  var had = false;
+  for (var i = 0; i < parts.length; i++) {
+    if (!parts[i]) continue;
+    var eq = parts[i].indexOf("=");
+    var key = eq < 0 ? parts[i] : parts[i].slice(0, eq);
+    try { key = decodeURIComponent(key.replace(/\+/g, "%20")); } catch (e) {}
+    if (key === "s") { had = true; continue; }
+    kept.push(parts[i]);
+  }
+  if (!had || !history.replaceState) return;
+  history.replaceState(null, "", path + (kept.length ? "?" + kept.join("&") : "") + hash);
+}
+
+function renderMessage(app, opts) {
+  while (app.firstChild) app.removeChild(app.firstChild);
+  var box = el("div", { class: "err", role: "status" },
+    el("div", { class: "icon", "aria-hidden": "true", text: opts.icon }),
+    el("p", {}, el("b", { text: opts.title })),
+    el("p", { text: opts.text })
+  );
+  app.appendChild(box);
+  if (opts.button) {
+    var btn = el("button", { class: "btn", type: "button", id: "refresh", text: opts.button });
+    btn.addEventListener("click", function () {
+      hapSel();
+      opts.onClick();
+    });
+    app.appendChild(btn);
+  }
+  app.appendChild(el("div", { class: "foot", text: PANEL_VER }));
+}
+
+function renderPanel(app, tg, state, now, ctl, send) {
+  while (app.firstChild) app.removeChild(app.firstChild);
+  var pendingConfirm = false;
+  var stack = [];
+  var main = el("main");
+  main.appendChild(el("h1", { class: "sr", text: "Роутер g20" }));
+
+  if (isStale(state.ts, now)) {
+    main.appendChild(el("div", {
+      class: "note warn",
+      role: "status",
+      text: "Данные " + agoText(state.ts, now) + ". Лучше обновить, прежде чем что-то менять."
+    }));
+  }
+  var age = 0;
+  try { age = authAge(tg.initData, now); } catch (e) { age = null; }
+  if (age != null && age > SESSION_NOTE_SEC) {
+    main.appendChild(el("div", {
+      class: "note",
+      role: "status",
+      text: "Сессия Telegram открыта давно. Если команда не уйдёт, закройте панель и откройте её снова."
+    }));
+  }
+
+  var hero = el("div", { class: "hero" });
+  hero.appendChild(tile("VPN", (state.vpn ? "🛡️ " : "⛔ ") + (state.vpn ? vpnTitle(state) : "Выключен")));
+  hero.appendChild(tile("Устройств в сети", "📱 " + String(onlineCount(state.devices))));
+  hero.appendChild(tile("Работает", "⏱ " + (state.uptime || "—")));
+  hero.appendChild(tile("Память · нагрузка", pair(state.mem, state.load)));
+  main.appendChild(hero);
+
+  main.appendChild(el("h2", { text: "Управление" }));
+  var controls = el("div", { class: "card" });
+  controls.appendChild(switchRow("🛡️", "VPN (Podkop)", "Заблокированные сайты через VPN, остальное напрямую", "vpn", state.vpn, "vpn"));
+  controls.appendChild(switchRow("👥", "Гостевой Wi‑Fi", "g20-guest", "guest", state.guest, "guest"));
+  controls.appendChild(el("div", { class: "row" },
+    el("span", { class: "ic", "aria-hidden": "true", text: "🚫" }),
+    el("div", { class: "t", text: "Блокировка рекламы" }, el("div", { class: "s", text: "AdGuard Home" })),
+    el("span", { class: "s", text: state.adguard ? "работает" : "выключена" })
+  ));
+  main.appendChild(controls);
+
+  if (state.vpn) main.appendChild(serverSection(state));
+
+  var anyDev = false;
+  for (var n = 0; n < NET_ORDER.length; n++) {
+    var key = NET_ORDER[n];
+    var list = [];
+    for (var di = 0; di < state.devices.length; di++) {
+      if (state.devices[di].net === key) list.push(state.devices[di]);
+    }
+    var hidden = key === "h" ? state.hiddenHome : 0;
+    if (!list.length && !hidden) continue;
+    anyDev = true;
+    main.appendChild(netSection(key, list, hidden));
+  }
+  if (!anyDev) {
+    main.appendChild(el("h2", { text: "Устройства" }));
+    main.appendChild(el("div", { class: "card" },
+      el("div", { class: "row" }, el("div", { class: "t" }, el("div", { class: "s wrap", text: "В списке никого нет. Обновите данные, если это неожиданно." })))
+    ));
+  }
+  if (state.skipped) {
+    main.appendChild(el("div", { class: "foot", text: "Часть записей об устройствах пропущена — обновите данные." }));
+  }
+  if (state.hiddenOffline) {
+    main.appendChild(el("div", { class: "foot", text: "Не в сети и скрыто: " + String(state.hiddenOffline) }));
+  }
+
+  main.appendChild(el("h2", { text: "Сеть" }));
+  main.appendChild(el("div", { class: "card" },
+    el("div", { class: "row" },
+      el("span", { class: "ic", "aria-hidden": "true", text: "🌐" }),
+      el("div", { class: "t", text: "Внешний IP" }, el("div", { class: "s", text: "WAN " + (state.wan || "нет данных") })),
+      el("span", { class: "s", text: state.wanExtra || "" })
+    )
+  ));
+
+  main.appendChild(el("h2", { text: "Действия" }));
+  main.appendChild(actionButton("speed", "📶 Тест скорости", function () { hapSel(); send({ a: "speed" }); }));
+  main.appendChild(actionButton("report", "📋 Отчёт за сутки", function () { hapSel(); send({ a: "report" }); }));
+  main.appendChild(actionButton("refresh", "🔄 Обновить данные", function () { hapSel(); send({ a: "refresh" }); }));
+  var reboot = actionButton("reboot", "⏻ Перезагрузить роутер", function () {
+    confirmDo("Перезагрузить роутер? Интернет пропадёт примерно на 2 минуты.", function () {
+      send({ a: "reboot" });
+    });
+  });
+  reboot.classList.add("red");
+  main.appendChild(reboot);
+  var shortIp = false;
+  for (var si = 0; si < state.devices.length; si++) {
+    if (state.devices[si].ip && state.devices[si].ip.charAt(0) === ".") shortIp = true;
+  }
+  var foot = "Данные: " + agoText(state.ts, now) + " · команды выполняет бот · " + PANEL_VER;
+  if (shortIp) foot += " · адреса — по окончанию";
+  main.appendChild(el("div", { class: "foot", text: foot }));
+  app.appendChild(main);
+
+  try {
+    tg.BackButton.onClick(function () {
+      if (!stack.length) {
+        syncBack();
+        return;
+      }
+      var mac = stack.pop();
+      setEditor(mac, false);
+      syncBack();
+      hapSel();
+    });
+  } catch (e) {}
+
+  function tile(k, v) {
+    return el("div", { class: "tile" }, el("div", { class: "k", text: k }), el("div", { class: "v", text: v }));
+  }
+
+  function pair(a, b) {
+    if (!a && !b) return "—";
+    if (!a) return b;
+    if (!b) return a;
+    return a + " · " + b;
+  }
+
+  function switchRow(icon, title, sub, id, checked, action) {
+    var input = el("input", { type: "checkbox", id: id });
+    if (checked) input.checked = true;
+    input.addEventListener("change", function () {
+      if (ctl.busy || pendingConfirm) {
+        input.checked = !input.checked;
+        return;
+      }
+      var on = input.checked;
+      if (on) {
+        hapSel();
+        send({ a: action, v: 1 }, function () { input.checked = false; });
+        return;
+      }
+      input.checked = true;
+      var text = action === "vpn"
+        ? "Выключить VPN? Заблокированные сайты перестанут открываться."
+        : "Выключить гостевой Wi‑Fi? Гости отключатся от сети.";
+      confirmDo(text, function () {
+        input.checked = false;
+        send({ a: action, v: 0 }, function () { input.checked = true; });
+      });
+    });
+    var sw = el("span", { class: "sw" }, input, el("span", { "aria-hidden": "true" }));
+    return el("label", { class: "row" },
+      el("span", { class: "ic", "aria-hidden": "true", text: icon }),
+      el("div", { class: "t", text: title }, el("div", { class: "s wrap", text: sub })),
+      sw
+    );
+  }
+
+  function serverSection(s) {
+    var wrap = el("div");
+    wrap.appendChild(el("h2", { text: "Сервер VPN" }));
+    var card = el("div", { class: "card", role: "group", "aria-label": "Сервер VPN" });
+    if (!s.nodes.length) {
+      card.appendChild(el("div", { class: "row" }, el("div", { class: "t" }, el("div", { class: "s wrap", text: "Список серверов пуст. Обновите данные." }))));
+    } else {
+      var autoNode = findNode(s, s.auto);
+      var ap = autoNode ? autoNode.ping : 0;
+      var autoLabel = autoNode ? nodeLabel(autoNode.cc).join(" ") : "выбирается";
+      card.appendChild(serverRow("AUTO", "⚡", "Авто (лучший)", "сейчас: " + autoLabel, ap, s.sel === "AUTO", false));
+      for (var i = 0; i < s.nodes.length; i++) {
+        var node = s.nodes[i];
+        var label = nodeLabel(node.cc);
+        card.appendChild(serverRow(node.tag, label[0], label[1], "", node.ping, s.sel === node.tag, node.ping <= 0));
+      }
+    }
+    wrap.appendChild(card);
+    return wrap;
+  }
+
+  function serverRow(tag, icon, title, sub, ping, on, dead) {
+    var cls = "row srv" + (on ? " on" : "") + (dead ? " dead" : "");
+    var pingText = ping > 0 ? ping + " мс" : (tag === "AUTO" ? "" : "нет связи");
+    var row = el("div", {
+      class: cls,
+      role: "button",
+      tabindex: "0",
+      "aria-pressed": on ? "true" : "false",
+      "data-t": tag
+    },
+      el("span", { class: "chk", "aria-hidden": "true", text: on ? "✓" : "" }),
+      el("span", { class: "ic", "aria-hidden": "true", text: icon }),
+      el("div", { class: "t", text: title }, sub ? el("div", { class: "s", text: sub }) : null),
+      el("span", { class: "ping " + pingClass(ping), text: pingText })
+    );
+    if (on) row.appendChild(el("span", { class: "sr", text: "выбран" }));
+    bindPress(row, function () {
+      if (ctl.busy || pendingConfirm) return;
+      if (tag === state.sel) return;
+      var go = function () { send({ a: "sel", t: tag }); };
+      if (dead) confirmDo("С этим сервером нет связи. Всё равно переключить?", go);
+      else { hapSel(); go(); }
+    });
+    return row;
+  }
+
+  function netSection(key, list, hidden) {
+    var meta = NET_META[key];
+    var online = 0;
+    for (var i = 0; i < list.length; i++) if (list[i].online) online++;
+    var wrap = el("div");
+    var heading = el("h2", { text: meta.icon + " " + meta.title });
+    heading.appendChild(el("span", { class: "badge", text: online + " в сети" }));
+    wrap.appendChild(heading);
+    var card = el("div", { class: "card" });
+    for (var j = 0; j < list.length; j++) card.appendChild(deviceBlock(list[j], meta.dev));
+    if (hidden) {
+      card.appendChild(el("div", { class: "row" },
+        el("span", { class: "ic", "aria-hidden": "true", text: "💡" }),
+        el("div", { class: "t", text: hiddenHomeText(hidden) }, el("div", { class: "s", text: "не поместились в ссылку" }))
+      ));
+    }
+    wrap.appendChild(card);
+    return wrap;
+  }
+
+  function deviceBlock(d, icon) {
+    var frag = document.createDocumentFragment();
+    var title = el("div", { class: "t" });
+    title.appendChild(document.createTextNode(d.name || "Без имени"));
+    if (d.blocked) title.appendChild(el("span", { class: "bl", text: " · без интернета" }));
+    title.appendChild(el("div", { class: "s", text: deviceLine(d) }));
+    var row = el("div", { class: "row dev" + (d.online ? "" : " off") + (d.manageable ? "" : " static") },
+      el("span", { class: "ic", "aria-hidden": "true", text: icon }),
+      title,
+      d.manageable ? el("span", { class: "s", "aria-hidden": "true", text: "›" }) : null
+    );
+    frag.appendChild(row);
+    if (!d.manageable) return frag;
+    row.setAttribute("role", "button");
+    row.tabIndex = 0;
+    row.setAttribute("aria-expanded", "false");
+    row.setAttribute("data-m", d.mac);
+    var ed = el("div", { class: "ed", id: "ed-" + d.mac });
+    var input = el("input", {
+      id: "in-" + d.mac,
+      maxlength: "24",
+      placeholder: "Имя устройства",
+      "aria-label": "Имя устройства",
+      enterkeyhint: "done",
+      autocomplete: "off",
+      spellcheck: "false"
+    });
+    input.value = d.name || "";
+    var original = d.name || "";
+    input.addEventListener("input", syncDirty);
+    input.addEventListener("focus", function () {
+      setTimeout(function () {
+        try { input.scrollIntoView({ block: "center" }); } catch (e) {}
+      }, 280);
+    });
+    var save = el("button", { type: "button", text: "Сохранить имя" });
+    save.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      if (ctl.busy || pendingConfirm) return;
+      var name = cleanName(input.value);
+      if (!name) { toast("Введите имя устройства."); hapNote("error"); return; }
+      if (name === original) { toast("Имя не изменилось."); return; }
+      hapSel();
+      send({ a: "ren", m: d.mac, n: name });
+    });
+    var block = el("button", {
+      type: "button",
+      class: d.blocked ? "grn" : "red",
+      text: d.blocked ? "Вернуть интернет" : "Отключить интернет"
+    });
+    block.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      if (ctl.busy || pendingConfirm) return;
+      if (d.blocked) {
+        hapSel();
+        send({ a: "blk", m: d.mac, v: 0 });
+      } else {
+        confirmDo("Отключить интернет этому устройству? Локальная сеть останется.", function () {
+          send({ a: "blk", m: d.mac, v: 1 });
+        });
+      }
+    });
+    ed.appendChild(input);
+    ed.appendChild(el("div", { class: "s", text: "MAC " + formatMac(d.mac) }));
+    if (!d.mac) ed.appendChild(el("div", { class: "s", text: "Управление недоступно — нет адреса устройства." }));
+    ed.appendChild(save);
+    ed.appendChild(block);
+    row.setAttribute("aria-controls", "ed-" + d.mac);
+    bindPress(row, function () { toggleEditor(d.mac); });
+    frag.appendChild(ed);
+    return frag;
+  }
+
+  function toggleEditor(mac) {
+    var ed = document.getElementById("ed-" + mac);
+    if (!ed) return;
+    var open = !ed.classList.contains("open");
+    setEditor(mac, open);
+    var idx = stack.indexOf(mac);
+    if (idx >= 0) stack.splice(idx, 1);
+    if (open) stack.push(mac);
+    syncBack();
+    hapSel();
+  }
+
+  function setEditor(mac, open) {
+    var ed = document.getElementById("ed-" + mac);
+    var row = null;
+    var rows = app.querySelectorAll(".dev");
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].getAttribute("data-m") === mac) row = rows[i];
+    }
+    if (ed) {
+      if (open) ed.classList.add("open");
+      else ed.classList.remove("open");
+    }
+    if (row) row.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+
+  function syncBack() {
+    try {
+      if (stack.length) tg.BackButton.show();
+      else tg.BackButton.hide();
+    } catch (e) {}
+    syncDirty();
+  }
+
+  function syncDirty() {
+    var dirty = false;
+    var inputs = app.querySelectorAll(".ed input");
+    for (var i = 0; i < inputs.length; i++) {
+      var id = inputs[i].id.replace(/^in-/, "");
+      var dev = null;
+      for (var j = 0; j < state.devices.length; j++) if (state.devices[j].mac === id) dev = state.devices[j];
+      if (dev && cleanName(inputs[i].value) !== (dev.name || "") && cleanName(inputs[i].value) !== "") dirty = true;
+    }
+    try {
+      if (dirty) tg.enableClosingConfirmation();
+      else tg.disableClosingConfirmation();
+    } catch (e) {}
+  }
+
+  function actionButton(id, label, onClick) {
+    var btn = el("button", { class: "btn", type: "button", id: id, text: label });
+    btn.addEventListener("click", function () {
+      if (ctl.busy || pendingConfirm) return;
+      onClick();
+    });
+    return btn;
+  }
+
+  function confirmDo(text, onYes) {
+    if (ctl.busy || pendingConfirm) return;
+    pendingConfirm = true;
+    hapNote("warning");
+    var settled = false;
+    function finish() {
+      if (settled) return;
+      settled = true;
+      pendingConfirm = false;
+    }
+    var ask = tg && tg.showConfirm;
+    var canPopup = false;
+    try { canPopup = !tg.isVersionAtLeast || tg.isVersionAtLeast("6.2"); } catch (e) { canPopup = true; }
+    if (ask && canPopup) {
+      try {
+        ask.call(tg, text, function (ok) {
+          finish();
+          if (ok) onYes();
+        });
+        setTimeout(finish, 60000);
+        return;
+      } catch (e2) {}
+    }
+    var ok = false;
+    try { ok = window.confirm(text); } catch (e3) { ok = false; }
+    finish();
+    if (ok) onYes();
+  }
+}
+
+function bridgeLikely() {
+  try {
+    if (window.TelegramWebviewProxy !== undefined) return true;
+    if (window.external && "notify" in window.external) return true;
+    if (window.parent && window.parent !== window) return true;
+  } catch (e) {
+    return true;
+  }
+  return false;
+}
+
+function toast(text) {
+  var node = document.getElementById("toast");
+  if (!node) return;
+  node.textContent = text;
+  node.className = "toast show";
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function () {
+    node.className = "toast";
+  }, 6000);
+}
+
+function hapSel() {
+  var tg = window.Telegram && window.Telegram.WebApp;
+  try { tg && tg.HapticFeedback && tg.HapticFeedback.selectionChanged(); } catch (e) {}
+}
+function hapNote(type) {
+  var tg = window.Telegram && window.Telegram.WebApp;
+  try { tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred(type); } catch (e) {}
+}
+
+function bindPress(node, fn) {
+  node.addEventListener("click", fn);
+  node.addEventListener("keydown", function (ev) {
+    if (ev.key === "Enter" || ev.key === " ") {
+      ev.preventDefault();
+      fn();
+    }
+  });
+}
+
+if (typeof document !== "undefined" && document.getElementById("app")) {
+  try { boot(); } catch (e) {
+    console.error(e);
+    showFatal();
+  }
+}
